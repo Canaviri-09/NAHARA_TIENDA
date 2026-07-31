@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Checkout - NAHARA{% endblock %}
+{% block content %}
+<h2 class="mb-4">Checkout</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header">Datos de contacto y entrega</div>
+            <div class="card-body">
+                <p class="mb-1"><strong>{{ current_user.nombre }}</strong></p>
+                <p class="text-muted small">{{ current_user.correo }} · {{ current_user.telefono }}</p>
+
+                <form method="POST" enctype="multipart/form-data" novalidate>
+                    {{ formulario.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ formulario.tipo_entrega.label(class="form-label") }}
+                        {{ formulario.tipo_entrega(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ formulario.direccion_envio.label(class="form-label") }}
+                        {{ formulario.direccion_envio(class="form-control", placeholder="Solo si eliges envío") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ formulario.nota.label(class="form-label") }}
+                        {{ formulario.nota(class="form-control", rows=2) }}
+                    </div>
+
+                    <hr>
+                    <h6>Pago por QR / Transferencia bancaria</h6>
+                    {% if configuracion_qr and configuracion_qr.ruta_imagen_qr %}
+                        <img src="{{ url_for('static', filename=configuracion_qr.ruta_imagen_qr) }}" style="width:180px;" class="d-block mb-2 border rounded p-2">
+                        <p class="small text-muted mb-3">
+                            {{ configuracion_qr.nombre_beneficiario }}{% if configuracion_qr.banco %} · {{ configuracion_qr.banco }}{% endif %}
+                            {% if configuracion_qr.numero_cuenta %}<br>Cuenta: {{ configuracion_qr.numero_cuenta }}{% endif %}
+                        </p>
+                    {% else %}
+                        <p class="small text-muted mb-3">El QR institucional aún no fue configurado por Gerencia.</p>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Adjuntar comprobante de pago</label>
+                        <input type="file" name="comprobante" class="form-control" accept="image/png,image/jpeg,image/webp">
+                    </div>
+
+                    {{ formulario.submit(class="btn btn-nahara w-100") }}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Resumen del pedido</div>
+            <ul class="list-group list-group-flush">
+                {% for l in lineas %}
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>{{ l.producto.nombre }} (talla {{ l.talla }}) x{{ l.cantidad }} <span class="badge bg-secondary">{{ l.tipo_tarifa }}</span></span>
+                    <span>Bs. {{ "%.2f"|format(l.subtotal) }}</span>
+                </li>
+                {% endfor %}
+                <li class="list-group-item d-flex justify-content-between fw-bold">
+                    <span>Total</span>
+                    <span>Bs. {{ "%.2f"|format(total) }}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}{{ "Nuevo" if modo == "nuevo" else "Editar" }} producto - NAHARA{% endblock %}
+{% block content %}
+<h2 class="mb-4">{{ "Nuevo producto" if modo == "nuevo" else "Editar: " + producto.nombre }}</h2>
+
+<form method="POST" enctype="multipart/form-data" novalidate>
+    {{ formulario.hidden_tag() }}
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header">Datos del producto</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            {{ formulario.nombre.label(class="form-label") }}
+                            {{ formulario.nombre(class="form-control") }}
+                            {% for error in formulario.nombre.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            {{ formulario.sku.label(class="form-label") }}
+                            {{ formulario.sku(class="form-control") }}
+                            {% for error in formulario.sku.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ formulario.categoria_id.label(class="form-label") }}
+                            {{ formulario.categoria_id(class="form-select") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ formulario.subcategoria_id.label(class="form-label") }}
+                            {{ formulario.subcategoria_id(class="form-select") }}
+                        </div>
+                    </div>
+                    <div class="mb-0">
+                        {{ formulario.descripcion.label(class="form-label") }}
+                        {{ formulario.descripcion(class="form-control", rows=3) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">Matriz de precios multinivel (Bs.)</div>
+                <div class="card-body row">
+                    <div class="col-md-4 mb-3">
+                        {{ formulario.precio_publico.label(class="form-label") }}
+                        {{ formulario.precio_publico(class="form-control") }}
+                        {% for error in formulario.precio_publico.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        {{ formulario.precio_minorista.label(class="form-label") }}
+                        {{ formulario.precio_minorista(class="form-control") }}
+                        {% for error in formulario.precio_minorista.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        {{ formulario.precio_mayorista.label(class="form-label") }}
+                        {{ formulario.precio_mayorista(class="form-control") }}
+                        {% for error in formulario.precio_mayorista.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">Matriz de inventario por talla</div>
+                <div class="card-body">
+                    <div class="row row-cols-4 row-cols-md-7 g-2">
+                        {% for talla in tallas_calzado %}
+                        <div class="col">
+                            <label class="form-label small mb-1">Talla {{ talla }}</label>
+                            <input type="number" min="0" class="form-control form-control-sm"
+                                   name="stock_talla_{{ talla }}"
+                                   value="{{ stock_por_talla.get(talla, '') if stock_por_talla else '' }}">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if producto %}
+                    <p class="mt-3 mb-0"><strong>Stock total actual:</strong> {{ producto.stock_total }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">Fotografías</div>
+                <div class="card-body">
+                    {% if producto and producto.imagenes %}
+                    <div class="row g-2 mb-3">
+                        {% for img in producto.imagenes %}
+                        <div class="col-3">
+                            <div class="border rounded p-1 text-center">
+                                <img src="{{ url_for('static', filename=img.ruta_archivo) }}" style="width:100%;height:80px;object-fit:cover;">
+                                {% if img.es_principal %}
+                                    <div class="small text-success">Principal</div>
+                                {% else %}
+                                    <form method="POST" action="{{ url_for('productos.marcar_principal', producto_id=producto.id, imagen_id=img.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-link btn-sm p-0">Hacer principal</button>
+                                    </form>
+                                {% endif %}
+                                <form method="POST" action="{{ url_for('productos.eliminar_imagen', producto_id=producto.id, imagen_id=img.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-link btn-sm text-danger p-0">Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <label class="form-label">Agregar fotos (puedes seleccionar varias)</label>
+                    <input type="file" name="fotos" class="form-control" multiple accept="image/png,image/jpeg,image/webp">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ formulario.estado.label(class="form-label") }}
+                        {{ formulario.estado(class="form-select") }}
+                    </div>
+                    {{ formulario.submit(class="btn btn-nahara w-100") }}
+                    <a href="{{ url_for('productos.listar') }}" class="btn btn-outline-dark w-100 mt-2">Volver al listado</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

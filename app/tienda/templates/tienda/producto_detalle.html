@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}{{ producto.nombre }} - NAHARA{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        {% if producto.imagen_principal %}
+            <img src="{{ url_for('static', filename=producto.imagen_principal.ruta_archivo) }}" class="img-fluid rounded mb-2" alt="{{ producto.nombre }}">
+        {% else %}
+            <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height:350px;">
+                <span class="text-muted">Sin fotografías</span>
+            </div>
+        {% endif %}
+        <div class="d-flex gap-2 flex-wrap">
+            {% for img in producto.imagenes %}
+                <img src="{{ url_for('static', filename=img.ruta_archivo) }}" style="width:60px;height:60px;object-fit:cover;" class="rounded border">
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <h2>{{ producto.nombre }}</h2>
+        <p class="text-muted">SKU: {{ producto.sku }} · {{ producto.categoria.nombre }}{% if producto.subcategoria %} / {{ producto.subcategoria.nombre }}{% endif %}</p>
+
+        <h3 class="mb-0">Bs. {{ "%.2f"|format(precio_unitario) }}</h3>
+        {% if tipo_tarifa != "Menudeo" %}<p class="text-muted">Precio {{ tipo_tarifa }} aplicado a tu cuenta</p>{% endif %}
+
+        <div class="alert alert-light border small">
+            Compra {{ umbral_docena }} pares o más de este producto y el precio baja automáticamente a
+            <strong>Bs. {{ "%.2f"|format(precio_docena) }}</strong> por par (Precio Mayorista / Por Docena).
+        </div>
+
+        {% if producto.descripcion %}<p>{{ producto.descripcion }}</p>{% endif %}
+
+        <form method="POST" action="{{ url_for('tienda.agregar_carrito') }}" class="mt-3">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="producto_id" value="{{ producto.id }}">
+            <div class="mb-3">
+                <label class="form-label">Talla</label>
+                <select name="talla" class="form-select" required>
+                    <option value="" disabled selected>Selecciona una talla</option>
+                    {% for talla, stock in tallas_disponibles.items() %}
+                        <option value="{{ talla }}">{{ talla }} ({{ stock }} disp.)</option>
+                    {% endfor %}
+                </select>
+                {% if not tallas_disponibles %}<div class="text-danger small mt-1">Sin stock disponible por el momento.</div>{% endif %}
+            </div>
+            <div class="mb-3" style="max-width:120px;">
+                <label class="form-label">Cantidad</label>
+                <input type="number" name="cantidad" value="1" min="1" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-nahara" {% if not tallas_disponibles %}disabled{% endif %}>Añadir al carrito</button>
+            <span class="text-muted small d-block mt-2">Retiro en tienda disponible en 24h.</span>
+        </form>
+    </div>
+</div>
+
+{% if recomendados %}
+<hr class="my-4">
+<h4>Productos recomendados</h4>
+<div class="row row-cols-1 row-cols-md-4 g-3">
+    {% for r in recomendados %}
+    <div class="col">
+        <a href="{{ url_for('tienda.producto_detalle', producto_id=r.id) }}" class="text-decoration-none text-dark">
+            <div class="card h-100">
+                {% if r.imagen_principal %}
+                    <img src="{{ url_for('static', filename=r.imagen_principal.ruta_archivo) }}" class="card-img-top" style="height:150px;object-fit:cover;">
+                {% endif %}
+                <div class="card-body">
+                    <p class="mb-0 small">{{ r.nombre }}</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
