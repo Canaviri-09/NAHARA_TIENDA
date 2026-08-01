@@ -29,18 +29,22 @@
                     <hr>
                     <h6>Pago por QR / Transferencia bancaria</h6>
                     {% if configuracion_qr and configuracion_qr.ruta_imagen_qr %}
-                        <img src="{{ url_for('static', filename=configuracion_qr.ruta_imagen_qr) }}" style="width:180px;" class="d-block mb-2 border rounded p-2">
-                        <p class="small text-muted mb-3">
-                            {{ configuracion_qr.nombre_beneficiario }}{% if configuracion_qr.banco %} · {{ configuracion_qr.banco }}{% endif %}
-                            {% if configuracion_qr.numero_cuenta %}<br>Cuenta: {{ configuracion_qr.numero_cuenta }}{% endif %}
-                        </p>
+                    <img src="{{ url_for('static', filename=configuracion_qr.ruta_imagen_qr) }}" style="width:180px;"
+                        class="d-block mb-2 border rounded p-2">
+                    <p class="small text-muted mb-3">
+                        {{ configuracion_qr.nombre_beneficiario }}{% if configuracion_qr.banco %} · {{
+                        configuracion_qr.banco }}{% endif %}
+                        {% if configuracion_qr.numero_cuenta %}<br>Cuenta: {{ configuracion_qr.numero_cuenta }}{% endif
+                        %}
+                    </p>
                     {% else %}
-                        <p class="small text-muted mb-3">El QR institucional aún no fue configurado por Gerencia.</p>
+                    <p class="small text-muted mb-3">El QR institucional aún no fue configurado por Gerencia.</p>
                     {% endif %}
 
                     <div class="mb-3">
                         <label class="form-label">Adjuntar comprobante de pago</label>
-                        <input type="file" name="comprobante" class="form-control" accept="image/png,image/jpeg,image/webp">
+                        <input type="file" name="comprobante" class="form-control"
+                            accept="image/png,image/jpeg,image/webp">
                     </div>
 
                     {{ formulario.submit(class="btn btn-nahara w-100") }}
@@ -55,7 +59,8 @@
             <ul class="list-group list-group-flush">
                 {% for l in lineas %}
                 <li class="list-group-item d-flex justify-content-between">
-                    <span>{{ l.producto.nombre }} (talla {{ l.talla }}) x{{ l.cantidad }} <span class="badge bg-secondary">{{ l.tipo_tarifa }}</span></span>
+                    <span>{{ l.producto.nombre }} x{{ l.cantidad }} <span class="badge bg-secondary">{{ l.tipo_tarifa
+                            }}</span></span>
                     <span>Bs. {{ "%.2f"|format(l.subtotal) }}</span>
                 </li>
                 {% endfor %}

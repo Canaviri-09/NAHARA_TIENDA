@@ -2,7 +2,6 @@ import os
 import uuid
 from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
-from sqlalchemy import or_
 
 from app.tienda import tienda_bp
 from app.tienda.forms import CheckoutForm
@@ -12,41 +11,53 @@ from app.tienda.utils_carrito import (
     vaciar_carrito, calcular_resumen_carrito,
 )
 from app.productos.utils_imagenes import extension_permitida
+from app.productos.utils_mas_vendidos import obtener_ids_mas_vendidos
 from app.extensions import db
 from app.models_all import (
-    Producto, ProductoTalla, Categoria, ConfiguracionPagoQR, ConfiguracionEmpresa, Pedido, ItemPedido, TALLAS_CALZADO,
+    Producto, Categoria, ConfiguracionPagoQR, ConfiguracionEmpresa, Pedido, ItemPedido,
 )
 from app.utilidades import requiere_rol
 
-ESTADOS_VISIBLES_TIENDA = ("Activo", "En Oferta", "Seccion WOW")
+LIMITE_SECCIONES_HOME = 8
 
 
 # ---------------------------------------------------------------------------
-# Catálogo
+# Catálogo (también es la página de inicio de la tienda)
 # ---------------------------------------------------------------------------
 @tienda_bp.route("/")
 def catalogo():
-    consulta = Producto.query.filter(Producto.estado.in_(ESTADOS_VISIBLES_TIENDA))
+    consulta = Producto.query.filter(Producto.activo.is_(True))
+
+    q = request.args.get("q", "").strip()
+    if q:
+        consulta = consulta.filter(
+            db.or_(Producto.nombre.ilike(f"%{q}%"), Producto.descripcion.ilike(f"%{q}%"))
+        )
 
     categoria_id = request.args.get("categoria_id", type=int)
     if categoria_id:
         consulta = consulta.filter(Producto.categoria_id == categoria_id)
 
+    subcategoria_id = request.args.get("subcategoria_id", type=int)
+    if subcategoria_id:
+        consulta = consulta.filter(Producto.subcategoria_id == subcategoria_id)
+
     disponibilidad = request.args.get("disponibilidad")
     if disponibilidad == "en_existencia":
-        consulta = consulta.join(ProductoTalla).filter(ProductoTalla.stock > 0).distinct()
+        consulta = consulta.filter(Producto.stock > 0)
     elif disponibilidad == "agotado":
-        ids_con_stock = db.session.query(ProductoTalla.producto_id).filter(ProductoTalla.stock > 0).distinct()
-        consulta = consulta.filter(~Producto.id.in_(ids_con_stock))
+        consulta = consulta.filter(Producto.stock <= 0)
 
-    tallas_filtro = request.args.getlist("talla", type=int)
-    if tallas_filtro:
-        ids_con_talla = (
-            db.session.query(ProductoTalla.producto_id)
-            .filter(ProductoTalla.talla.in_(tallas_filtro), ProductoTalla.stock > 0)
-            .distinct()
-        )
-        consulta = consulta.filter(Producto.id.in_(ids_con_talla))
+    if request.args.get("nuevo"):
+        consulta = consulta.filter(Producto.es_nuevo.is_(True))
+    if request.args.get("destacado"):
+        consulta = consulta.filter(Producto.es_destacado.is_(True))
+    if request.args.get("oferta"):
+        consulta = consulta.filter(Producto.en_oferta.is_(True))
+
+    ids_mas_vendidos = obtener_ids_mas_vendidos()
+    if request.args.get("mas_vendido"):
+        consulta = consulta.filter(Producto.id.in_(ids_mas_vendidos) if ids_mas_vendidos else db.false())
 
     orden = request.args.get("orden", "relevancia")
     if orden == "az":
@@ -65,31 +76,50 @@ def catalogo():
     productos = consulta.all()
     categorias = Categoria.query.filter_by(activo=True).order_by(Categoria.nombre).all()
 
+    # Las secciones "Destacados" / "Novedades" de la portada solo se
+    # muestran en la visita limpia a la tienda (sin filtros activos), para
+    # no confundirlas con resultados de búsqueda/filtro.
+    hay_filtros_activos = any([
+        q, categoria_id, subcategoria_id, disponibilidad,
+        request.args.get("nuevo"), request.args.get("destacado"),
+        request.args.get("oferta"), request.args.get("mas_vendido"),
+    ])
+    destacados_home, novedades_home = [], []
+    if not hay_filtros_activos:
+        destacados_home = (
+            Producto.query.filter_by(activo=True, es_destacado=True)
+            .order_by(Producto.fecha_creacion.desc()).limit(LIMITE_SECCIONES_HOME).all()
+        )
+        novedades_home = (
+            Producto.query.filter_by(activo=True, es_nuevo=True)
+            .order_by(Producto.fecha_creacion.desc()).limit(LIMITE_SECCIONES_HOME).all()
+        )
+
     return render_template(
         "tienda/catalogo.html",
         productos=productos,
         categorias=categorias,
-        tallas_calzado=TALLAS_CALZADO,
         calcular_precio_unitario=calcular_precio_unitario,
+        ids_mas_vendidos=ids_mas_vendidos,
+        hay_filtros_activos=hay_filtros_activos,
+        destacados_home=destacados_home,
+        novedades_home=novedades_home,
+        busqueda=q,
     )
 
 
 @tienda_bp.route("/producto/<int:producto_id>")
 def producto_detalle(producto_id):
-    producto = Producto.query.filter(
-        Producto.id == producto_id, Producto.estado.in_(ESTADOS_VISIBLES_TIENDA)
-    ).first_or_404()
+    producto = Producto.query.filter(Producto.id == producto_id, Producto.activo.is_(True)).first_or_404()
 
     precio_unitario, tipo_tarifa = calcular_precio_unitario(producto, current_user, 0)
     precio_docena, _ = calcular_precio_unitario(producto, current_user, current_app.config["UMBRAL_PRECIO_DOCENA"])
-
-    tallas_disponibles = {t.talla: t.stock for t in producto.tallas if t.stock > 0}
 
     recomendados = (
         Producto.query.filter(
             Producto.categoria_id == producto.categoria_id,
             Producto.id != producto.id,
-            Producto.estado.in_(ESTADOS_VISIBLES_TIENDA),
+            Producto.activo.is_(True),
         ).limit(4).all()
     )
 
@@ -99,9 +129,9 @@ def producto_detalle(producto_id):
         precio_unitario=precio_unitario,
         tipo_tarifa=tipo_tarifa,
         precio_docena=precio_docena,
-        tallas_disponibles=tallas_disponibles,
         recomendados=recomendados,
         umbral_docena=current_app.config["UMBRAL_PRECIO_DOCENA"],
+        ids_mas_vendidos=obtener_ids_mas_vendidos(),
     )
 
 
@@ -111,17 +141,15 @@ def producto_detalle(producto_id):
 @tienda_bp.route("/carrito/agregar", methods=["POST"])
 def agregar_carrito():
     producto_id = request.form.get("producto_id", type=int)
-    talla = request.form.get("talla", type=int)
     cantidad = request.form.get("cantidad", type=int) or 1
 
     producto = Producto.query.get_or_404(producto_id)
-    talla_registro = ProductoTalla.query.filter_by(producto_id=producto_id, talla=talla).first()
 
-    if talla_registro is None or talla_registro.stock <= 0:
-        flash("Esa talla no está disponible en este momento.", "danger")
+    if not producto.activo or producto.stock <= 0:
+        flash("Ese producto no está disponible en este momento.", "danger")
     else:
-        agregar_al_carrito(producto_id, talla, cantidad)
-        flash(f"'{producto.nombre}' (talla {talla}) agregado al carrito.", "success")
+        agregar_al_carrito(producto_id, cantidad)
+        flash(f"'{producto.nombre}' agregado al carrito.", "success")
 
     return redirect(request.referrer or url_for("tienda.catalogo"))
 
@@ -129,17 +157,15 @@ def agregar_carrito():
 @tienda_bp.route("/carrito/actualizar", methods=["POST"])
 def actualizar_carrito():
     producto_id = request.form.get("producto_id", type=int)
-    talla = request.form.get("talla", type=int)
     cantidad = request.form.get("cantidad", type=int) or 0
-    actualizar_cantidad_carrito(producto_id, talla, cantidad)
+    actualizar_cantidad_carrito(producto_id, cantidad)
     return redirect(url_for("tienda.ver_carrito"))
 
 
 @tienda_bp.route("/carrito/eliminar", methods=["POST"])
 def eliminar_carrito():
     producto_id = request.form.get("producto_id", type=int)
-    talla = request.form.get("talla", type=int)
-    eliminar_del_carrito(producto_id, talla)
+    eliminar_del_carrito(producto_id)
     flash("Producto eliminado del carrito.", "info")
     return redirect(url_for("tienda.ver_carrito"))
 
@@ -204,7 +230,6 @@ def checkout():
                 pedido_id=pedido.id,
                 producto_id=linea["producto"].id,
                 nombre_producto=linea["producto"].nombre,
-                talla=linea["talla"],
                 cantidad=linea["cantidad"],
                 precio_unitario=linea["precio_unitario"],
                 subtotal=linea["subtotal"],
@@ -230,7 +255,7 @@ def confirmacion_pedido(pedido_id):
 
 
 # ---------------------------------------------------------------------------
-# Configuración del QR institucional (Gerente / Administrador)
+# Configuración del QR Empresarias (Gerente / Administrador)
 # ---------------------------------------------------------------------------
 @tienda_bp.route("/configurar-pago-qr", methods=["GET", "POST"])
 @login_required

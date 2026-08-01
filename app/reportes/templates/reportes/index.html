@@ -7,18 +7,20 @@
     <div class="card-body row g-3">
         <div class="col-md-2">
             <label class="form-label small">Desde</label>
-            <input type="date" name="fecha_desde" class="form-control form-control-sm" value="{{ filtros.fecha_desde_str }}">
+            <input type="date" name="fecha_desde" class="form-control form-control-sm"
+                value="{{ filtros.fecha_desde_str }}">
         </div>
         <div class="col-md-2">
             <label class="form-label small">Hasta</label>
-            <input type="date" name="fecha_hasta" class="form-control form-control-sm" value="{{ filtros.fecha_hasta_str }}">
+            <input type="date" name="fecha_hasta" class="form-control form-control-sm"
+                value="{{ filtros.fecha_hasta_str }}">
         </div>
         <div class="col-md-3">
             <label class="form-label small">Producto</label>
             <select name="producto_id" class="form-select form-select-sm">
                 <option value="">Todos</option>
                 {% for p in productos %}
-                <option value="{{ p.id }}" {% if filtros.producto_id == p.id %}selected{% endif %}>{{ p.nombre }}</option>
+                <option value="{{ p.id }}" {% if filtros.producto_id==p.id %}selected{% endif %}>{{ p.nombre }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -27,7 +29,8 @@
             <select name="categoria_id" class="form-select form-select-sm">
                 <option value="">Todas</option>
                 {% for c in categorias %}
-                <option value="{{ c.id }}" {% if filtros.categoria_id == c.id %}selected{% endif %}>{{ c.nombre }}</option>
+                <option value="{{ c.id }}" {% if filtros.categoria_id==c.id %}selected{% endif %}>{{ c.nombre }}
+                </option>
                 {% endfor %}
             </select>
         </div>
@@ -36,7 +39,7 @@
             <select name="canal" class="form-select form-select-sm">
                 <option value="">Todos</option>
                 {% for c in canales %}
-                <option value="{{ c }}" {% if filtros.canal == c %}selected{% endif %}>{{ c }}</option>
+                <option value="{{ c }}" {% if filtros.canal==c %}selected{% endif %}>{{ c }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -77,13 +80,24 @@
 </div>
 
 <div class="mb-3">
-    <a href="{{ url_for('reportes.exportar_pdf', **request.args) }}" class="btn btn-outline-dark btn-sm" target="_blank">Exportar PDF</a>
-    <a href="{{ url_for('reportes.exportar_excel', **request.args) }}" class="btn btn-outline-dark btn-sm">Exportar Excel</a>
+    <a href="{{ url_for('reportes.exportar_pdf', **request.args) }}" class="btn btn-outline-dark btn-sm"
+        target="_blank">Exportar PDF</a>
+    <a href="{{ url_for('reportes.exportar_excel', **request.args) }}" class="btn btn-outline-dark btn-sm">Exportar
+        Excel</a>
 </div>
 
 <table class="table table-bordered bg-white align-middle table-sm">
     <thead class="table-dark">
-        <tr><th>Fecha</th><th>Pedido</th><th>Producto</th><th>Categoría</th><th>Talla</th><th>Canal</th><th>Cant.</th><th>P. Unit.</th><th>Subtotal</th></tr>
+        <tr>
+            <th>Fecha</th>
+            <th>Pedido</th>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Canal</th>
+            <th>Cant.</th>
+            <th>P. Unit.</th>
+            <th>Subtotal</th>
+        </tr>
     </thead>
     <tbody>
         {% for f in filas %}
@@ -92,14 +106,15 @@
             <td>#{{ f.pedido_id }}</td>
             <td>{{ f.producto }}</td>
             <td>{{ f.categoria }}</td>
-            <td>{{ f.talla }}</td>
             <td>{{ f.canal }}</td>
             <td>{{ f.cantidad }}</td>
             <td>{{ "%.2f"|format(f.precio_unitario) }}</td>
             <td>{{ "%.2f"|format(f.subtotal) }}</td>
         </tr>
         {% else %}
-        <tr><td colspan="9" class="text-center text-muted">No hay ventas verificadas con esos filtros.</td></tr>
+        <tr>
+            <td colspan="8" class="text-center text-muted">No hay ventas verificadas con esos filtros.</td>
+        </tr>
         {% endfor %}
     </tbody>
 </table>

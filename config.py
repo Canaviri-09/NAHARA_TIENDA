@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 # Carga las variables de entorno desde el archivo .env
 load_dotenv()
 
+
 class Config:
     # Clave secreta para sesiones y protección CSRF de Flask
     SECRET_KEY = os.environ.get("SECRET_KEY", "clave-de-respaldo-no-usar-en-produccion")
@@ -11,7 +12,6 @@ class Config:
     # Conexión a la base de datos PostgreSQL (local, Docker o servicio administrado).
     # NUNCA se usa SQLite, ni siquiera en desarrollo, para evitar incompatibilidades
     # de tipos de datos, llaves foráneas y JSON al migrar a la nube.
-    
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {

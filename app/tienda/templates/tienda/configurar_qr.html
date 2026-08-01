@@ -5,7 +5,8 @@
     <div class="col-md-6">
         <h2 class="mb-4">Configuración de pago QR institucional</h2>
         {% if configuracion.ruta_imagen_qr %}
-            <img src="{{ url_for('static', filename=configuracion.ruta_imagen_qr) }}" style="width:180px;" class="d-block mb-3 border rounded p-2">
+        <img src="{{ url_for('static', filename=configuracion.ruta_imagen_qr) }}" style="width:180px;"
+            class="d-block mb-3 border rounded p-2">
         {% endif %}
         <form method="POST" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -13,7 +14,8 @@
             <h6 class="mt-2">Datos institucionales (encabezado de la Nota de Venta)</h6>
             <div class="mb-3">
                 <label class="form-label">Nombre comercial</label>
-                <input type="text" name="nombre_comercial" class="form-control" value="{{ empresa.nombre_comercial or 'NAHARA' }}">
+                <input type="text" name="nombre_comercial" class="form-control"
+                    value="{{ empresa.nombre_comercial or 'NAHARA' }}">
             </div>
             <div class="mb-3">
                 <label class="form-label">Dirección</label>
@@ -40,7 +42,8 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">Nombre del beneficiario</label>
-                <input type="text" name="nombre_beneficiario" class="form-control" value="{{ configuracion.nombre_beneficiario or '' }}">
+                <input type="text" name="nombre_beneficiario" class="form-control"
+                    value="{{ configuracion.nombre_beneficiario or '' }}">
             </div>
             <div class="mb-3">
                 <label class="form-label">Banco</label>
@@ -48,7 +51,8 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">Número de cuenta</label>
-                <input type="text" name="numero_cuenta" class="form-control" value="{{ configuracion.numero_cuenta or '' }}">
+                <input type="text" name="numero_cuenta" class="form-control"
+                    value="{{ configuracion.numero_cuenta or '' }}">
             </div>
             <button type="submit" class="btn btn-nahara w-100">Guardar</button>
         </form>

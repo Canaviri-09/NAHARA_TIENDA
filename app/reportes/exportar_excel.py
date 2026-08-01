@@ -13,7 +13,7 @@ def exportar_reporte_excel(filas, resumen):
     ws["A1"].font = Font(bold=True, size=14)
     ws["A2"] = f"Generado: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
 
-    encabezados = ["Fecha", "Pedido", "Producto", "Categoría", "Talla", "Canal", "Cantidad", "Precio Unit. (Bs.)", "Subtotal (Bs.)"]
+    encabezados = ["Fecha", "Pedido", "Producto", "Categoría", "Canal", "Cantidad", "Precio Unit. (Bs.)", "Subtotal (Bs.)"]
     fila_encabezado = 4
     for col, encabezado in enumerate(encabezados, start=1):
         celda = ws.cell(row=fila_encabezado, column=col, value=encabezado)
@@ -26,11 +26,10 @@ def exportar_reporte_excel(filas, resumen):
         ws.cell(row=fila, column=2, value=f["pedido_id"])
         ws.cell(row=fila, column=3, value=f["producto"])
         ws.cell(row=fila, column=4, value=f["categoria"])
-        ws.cell(row=fila, column=5, value=f["talla"])
-        ws.cell(row=fila, column=6, value=f["canal"])
-        ws.cell(row=fila, column=7, value=f["cantidad"])
-        ws.cell(row=fila, column=8, value=float(f["precio_unitario"]))
-        ws.cell(row=fila, column=9, value=float(f["subtotal"]))
+        ws.cell(row=fila, column=5, value=f["canal"])
+        ws.cell(row=fila, column=6, value=f["cantidad"])
+        ws.cell(row=fila, column=7, value=float(f["precio_unitario"]))
+        ws.cell(row=fila, column=8, value=float(f["subtotal"]))
         fila += 1
 
     fila += 1
@@ -50,7 +49,7 @@ def exportar_reporte_excel(filas, resumen):
         ws.cell(row=fila, column=2, value=datos_canal["unidades"])
         ws.cell(row=fila, column=3, value=float(datos_canal["ingresos"]))
 
-    for columna, ancho in zip("ABCDEFGHI", [18, 8, 28, 18, 8, 12, 10, 16, 14]):
+    for columna, ancho in zip("ABCDEFGH", [18, 8, 28, 18, 12, 10, 16, 14]):
         ws.column_dimensions[columna].width = ancho
 
     buffer = io.BytesIO()

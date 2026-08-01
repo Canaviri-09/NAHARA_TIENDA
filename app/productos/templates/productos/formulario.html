@@ -15,12 +15,14 @@
                         <div class="col-md-8 mb-3">
                             {{ formulario.nombre.label(class="form-label") }}
                             {{ formulario.nombre(class="form-control") }}
-                            {% for error in formulario.nombre.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                            {% for error in formulario.nombre.errors %}<div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
                         </div>
                         <div class="col-md-4 mb-3">
                             {{ formulario.sku.label(class="form-label") }}
                             {{ formulario.sku(class="form-control") }}
-                            {% for error in formulario.sku.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                            {% for error in formulario.sku.errors %}<div class="text-danger small">{{ error }}</div>{%
+                            endfor %}
                         </div>
                     </div>
                     <div class="row">
@@ -46,37 +48,33 @@
                     <div class="col-md-4 mb-3">
                         {{ formulario.precio_publico.label(class="form-label") }}
                         {{ formulario.precio_publico(class="form-control") }}
-                        {% for error in formulario.precio_publico.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        {% for error in formulario.precio_publico.errors %}<div class="text-danger small">{{ error }}
+                        </div>{% endfor %}
                     </div>
                     <div class="col-md-4 mb-3">
                         {{ formulario.precio_minorista.label(class="form-label") }}
                         {{ formulario.precio_minorista(class="form-control") }}
-                        {% for error in formulario.precio_minorista.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        {% for error in formulario.precio_minorista.errors %}<div class="text-danger small">{{ error }}
+                        </div>{% endfor %}
                     </div>
                     <div class="col-md-4 mb-3">
                         {{ formulario.precio_mayorista.label(class="form-label") }}
                         {{ formulario.precio_mayorista(class="form-control") }}
-                        {% for error in formulario.precio_mayorista.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        {% for error in formulario.precio_mayorista.errors %}<div class="text-danger small">{{ error }}
+                        </div>{% endfor %}
                     </div>
                 </div>
             </div>
 
             <div class="card mb-3">
-                <div class="card-header">Matriz de inventario por talla</div>
+                <div class="card-header">Inventario</div>
                 <div class="card-body">
-                    <div class="row row-cols-4 row-cols-md-7 g-2">
-                        {% for talla in tallas_calzado %}
-                        <div class="col">
-                            <label class="form-label small mb-1">Talla {{ talla }}</label>
-                            <input type="number" min="0" class="form-control form-control-sm"
-                                   name="stock_talla_{{ talla }}"
-                                   value="{{ stock_por_talla.get(talla, '') if stock_por_talla else '' }}">
-                        </div>
-                        {% endfor %}
+                    <div class="col-md-4">
+                        {{ formulario.stock.label(class="form-label") }}
+                        {{ formulario.stock(class="form-control") }}
+                        {% for error in formulario.stock.errors %}<div class="text-danger small">{{ error }}</div>{%
+                        endfor %}
                     </div>
-                    {% if producto %}
-                    <p class="mt-3 mb-0"><strong>Stock total actual:</strong> {{ producto.stock_total }}</p>
-                    {% endif %}
                 </div>
             </div>
 
@@ -88,16 +86,19 @@
                         {% for img in producto.imagenes %}
                         <div class="col-3">
                             <div class="border rounded p-1 text-center">
-                                <img src="{{ url_for('static', filename=img.ruta_archivo) }}" style="width:100%;height:80px;object-fit:cover;">
+                                <img src="{{ url_for('static', filename=img.ruta_archivo) }}"
+                                    style="width:100%;height:80px;object-fit:cover;">
                                 {% if img.es_principal %}
-                                    <div class="small text-success">Principal</div>
+                                <div class="small text-success">Principal</div>
                                 {% else %}
-                                    <form method="POST" action="{{ url_for('productos.marcar_principal', producto_id=producto.id, imagen_id=img.id) }}">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                        <button type="submit" class="btn btn-link btn-sm p-0">Hacer principal</button>
-                                    </form>
+                                <form method="POST"
+                                    action="{{ url_for('productos.marcar_principal', producto_id=producto.id, imagen_id=img.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-link btn-sm p-0">Hacer principal</button>
+                                </form>
                                 {% endif %}
-                                <form method="POST" action="{{ url_for('productos.eliminar_imagen', producto_id=producto.id, imagen_id=img.id) }}">
+                                <form method="POST"
+                                    action="{{ url_for('productos.eliminar_imagen', producto_id=producto.id, imagen_id=img.id) }}">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <button type="submit" class="btn btn-link btn-sm text-danger p-0">Eliminar</button>
                                 </form>
@@ -107,7 +108,8 @@
                     </div>
                     {% endif %}
                     <label class="form-label">Agregar fotos (puedes seleccionar varias)</label>
-                    <input type="file" name="fotos" class="form-control" multiple accept="image/png,image/jpeg,image/webp">
+                    <input type="file" name="fotos" class="form-control" multiple
+                        accept="image/png,image/jpeg,image/webp">
                 </div>
             </div>
         </div>
@@ -115,15 +117,54 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
-                    <div class="mb-3">
-                        {{ formulario.estado.label(class="form-label") }}
-                        {{ formulario.estado(class="form-select") }}
+                    <div class="mb-3 form-check">
+                        {{ formulario.activo(class="form-check-input") }}
+                        {{ formulario.activo.label(class="form-check-label") }}
+                        <div class="form-text">Si lo desmarcas, solo el personal interno lo verá (como "Inactivo").
+                        </div>
                     </div>
+
+                    <hr>
+                    <p class="fw-bold mb-2">Etiquetas de estado (puedes combinar varias)</p>
+                    <div class="mb-2 form-check">
+                        {{ formulario.es_nuevo(class="form-check-input") }}
+                        {{ formulario.es_nuevo.label(class="form-check-label") }}
+                    </div>
+                    <div class="mb-2 form-check">
+                        {{ formulario.es_destacado(class="form-check-input") }}
+                        {{ formulario.es_destacado.label(class="form-check-label") }}
+                    </div>
+                    <div class="mb-2 form-check">
+                        {{ formulario.en_oferta(class="form-check-input", id="checkEnOferta") }}
+                        {{ formulario.en_oferta.label(class="form-check-label") }}
+                    </div>
+                    <div class="mb-3" id="campoPorcentaje">
+                        {{ formulario.porcentaje_descuento.label(class="form-label small") }}
+                        {{ formulario.porcentaje_descuento(class="form-control form-control-sm") }}
+                        {% for error in formulario.porcentaje_descuento.errors %}<div class="text-danger small">{{ error
+                            }}</div>{% endfor %}
+                    </div>
+                    <p class="small text-muted">"Más Vendido" se calcula solo, según las ventas reales — no se marca
+                        aquí.</p>
+
                     {{ formulario.submit(class="btn btn-nahara w-100") }}
-                    <a href="{{ url_for('productos.listar') }}" class="btn btn-outline-dark w-100 mt-2">Volver al listado</a>
+                    <a href="{{ url_for('productos.listar') }}" class="btn btn-outline-dark w-100 mt-2">Volver al
+                        listado</a>
                 </div>
             </div>
         </div>
     </div>
 </form>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+    const checkOferta = document.getElementById('checkEnOferta');
+    const campoPorcentaje = document.getElementById('campoPorcentaje');
+    function actualizarCampoPorcentaje() {
+        campoPorcentaje.style.display = checkOferta.checked ? 'block' : 'none';
+    }
+    checkOferta.addEventListener('change', actualizarCampoPorcentaje);
+    actualizarCampoPorcentaje();
+</script>
 {% endblock %}

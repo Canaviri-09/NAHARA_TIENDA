@@ -14,11 +14,13 @@
             <div class="mb-3">
                 {{ formulario.password.label(class="form-label") }}
                 {{ formulario.password(class="form-control") }}
-                {% for error in formulario.password.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                {% for error in formulario.password.errors %}<div class="text-danger small">{{ error }}</div>{% endfor
+                %}
             </div>
             {{ formulario.submit(class="btn btn-nahara w-100") }}
         </form>
-        <a href="{{ url_for('auth.portal') }}" class="d-block text-center mt-3">Volver</a>
+        <a href="{{ url_for('auth.olvide_password') }}" class="d-block text-center mt-3">¿Olvidaste tu contraseña?</a>
+        <a href="{{ url_for('auth.portal') }}" class="d-block text-center mt-1">Volver</a>
     </div>
 </div>
 {% endblock %}

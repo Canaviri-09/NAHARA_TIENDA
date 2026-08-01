@@ -17,7 +17,7 @@ def calcular_precio_unitario(producto, usuario, cantidad_en_carrito_del_producto
     umbral = current_app.config["UMBRAL_PRECIO_DOCENA"]
 
     if cantidad_en_carrito_del_producto >= umbral:
-        return producto.precio_mayorista, "Docena"
+        return producto.precio_mayorista_final, "Docena"
 
     es_b2b_aprobado = (
         usuario is not None
@@ -27,6 +27,6 @@ def calcular_precio_unitario(producto, usuario, cantidad_en_carrito_del_producto
         and usuario.estado_aprobacion_b2b == "Aprobado"
     )
     if es_b2b_aprobado:
-        return producto.precio_minorista, "Minorista"
+        return producto.precio_minorista_final, "Minorista"
 
-    return producto.precio_publico, "Menudeo"
+    return producto.precio_publico_final, "Menudeo"

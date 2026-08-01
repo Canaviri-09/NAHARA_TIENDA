@@ -2,7 +2,10 @@ from flask import render_template, redirect, url_for, flash, session
 from flask_login import login_user, logout_user, login_required, current_user
 
 from app.auth import auth_bp
-from app.auth.forms import LoginStaffForm, SolicitarOTPForm, VerificarOTPForm, RegistroClienteForm
+from app.auth.forms import (
+    LoginStaffForm, SolicitarOTPForm, VerificarOTPForm, RegistroClienteForm,
+    SolicitarRecuperacionForm, VerificarRecuperacionForm, NuevaPasswordForm,
+)
 from app.auth.utils_otp import generar_codigo_otp, enviar_correo_otp, validar_codigo_otp
 from app.extensions import db, bcrypt
 from app.models_all import Usuario, Rol
@@ -44,6 +47,90 @@ def login_staff():
             return redirect(url_for("dashboard.index"))
 
     return render_template("auth/login_staff.html", formulario=formulario)
+
+
+# ---------------------------------------------------------------------------
+# Recuperación de contraseña — personal interno
+# ("¿Olvidaste tu contraseña?" -> código de verificación por correo -> nueva contraseña)
+# ---------------------------------------------------------------------------
+@auth_bp.route("/personal/olvide-password", methods=["GET", "POST"])
+def olvide_password():
+    """Paso 1: el empleado/gerente/administrador escribe su correo y se le
+    envía un código de verificación de 6 dígitos (misma infraestructura que
+    el OTP de clientes; ver el comentario en utils_otp.enviar_correo_otp
+    para conectar el envío real por Gmail/SMTP)."""
+    if current_user.is_authenticated:
+        return redirect(url_for("dashboard.index"))
+
+    formulario = SolicitarRecuperacionForm()
+    if formulario.validate_on_submit():
+        correo = formulario.correo.data.lower().strip()
+        usuario = Usuario.query.filter_by(correo=correo).first()
+
+        if usuario is None or usuario.es_cliente_externo():
+            flash("No encontramos una cuenta de personal con ese correo.", "danger")
+            return render_template("auth/olvide_password.html", formulario=formulario)
+
+        codigo = generar_codigo_otp(correo)
+        enviar_correo_otp(correo, codigo)
+        session["recuperacion_correo_pendiente"] = correo
+
+        flash("Te enviamos un código de verificación a tu correo.", "info")
+        return redirect(url_for("auth.verificar_recuperacion"))
+
+    return render_template("auth/olvide_password.html", formulario=formulario)
+
+
+@auth_bp.route("/personal/verificar-recuperacion", methods=["GET", "POST"])
+def verificar_recuperacion():
+    """Paso 2: valida el código recibido. Al confirmarlo, habilita (por
+    sesión) el acceso de un solo uso al formulario de nueva contraseña."""
+    if current_user.is_authenticated:
+        return redirect(url_for("dashboard.index"))
+
+    formulario = VerificarRecuperacionForm()
+    if not formulario.correo.data:
+        formulario.correo.data = session.get("recuperacion_correo_pendiente", "")
+
+    if formulario.validate_on_submit():
+        correo = formulario.correo.data.lower().strip()
+
+        if not validar_codigo_otp(correo, formulario.codigo.data.strip()):
+            flash("Código inválido o expirado. Solicita uno nuevo.", "danger")
+            return render_template("auth/verificar_recuperacion.html", formulario=formulario)
+
+        # Código correcto: se habilita, por sesión, el cambio de contraseña
+        # para este correo (de un solo uso, se limpia al guardar la nueva).
+        session["recuperacion_correo_verificado"] = correo
+        session.pop("recuperacion_correo_pendiente", None)
+        return redirect(url_for("auth.nueva_password"))
+
+    return render_template("auth/verificar_recuperacion.html", formulario=formulario)
+
+
+@auth_bp.route("/personal/nueva-password", methods=["GET", "POST"])
+def nueva_password():
+    """Paso 3: define la nueva contraseña. Solo accesible tras verificar el
+    código del paso anterior en esta misma sesión de navegador."""
+    correo = session.get("recuperacion_correo_verificado")
+    if not correo:
+        flash("Primero debes verificar tu código de recuperación.", "warning")
+        return redirect(url_for("auth.olvide_password"))
+
+    usuario = Usuario.query.filter_by(correo=correo).first()
+    if usuario is None:
+        session.pop("recuperacion_correo_verificado", None)
+        return redirect(url_for("auth.olvide_password"))
+
+    formulario = NuevaPasswordForm()
+    if formulario.validate_on_submit():
+        usuario.password = bcrypt.generate_password_hash(formulario.password.data).decode("utf-8")
+        db.session.commit()
+        session.pop("recuperacion_correo_verificado", None)
+        flash("Contraseña actualizada. Ya puedes iniciar sesión.", "success")
+        return redirect(url_for("auth.login_staff"))
+
+    return render_template("auth/nueva_password.html", formulario=formulario)
 
 
 # ---------------------------------------------------------------------------

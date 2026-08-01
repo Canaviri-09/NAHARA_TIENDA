@@ -36,7 +36,6 @@ def consultar_ventas(fecha_desde=None, fecha_hasta=None, producto_id=None, categ
             "pedido_id": pedido.id,
             "producto": producto.nombre,
             "categoria": producto.categoria.nombre if producto.categoria else "-",
-            "talla": item.talla,
             "canal": item.tipo_tarifa,
             "cantidad": item.cantidad,
             "precio_unitario": item.precio_unitario,

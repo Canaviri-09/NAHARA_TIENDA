@@ -4,51 +4,63 @@
 <div class="row">
     <div class="col-md-6">
         {% if producto.imagen_principal %}
-            <img src="{{ url_for('static', filename=producto.imagen_principal.ruta_archivo) }}" class="img-fluid rounded mb-2" alt="{{ producto.nombre }}">
+        <img src="{{ url_for('static', filename=producto.imagen_principal.ruta_archivo) }}"
+            class="img-fluid rounded mb-2" alt="{{ producto.nombre }}">
         {% else %}
-            <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height:350px;">
-                <span class="text-muted">Sin fotografías</span>
-            </div>
+        <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height:350px;">
+            <span class="text-muted">Sin fotografías</span>
+        </div>
         {% endif %}
         <div class="d-flex gap-2 flex-wrap">
             {% for img in producto.imagenes %}
-                <img src="{{ url_for('static', filename=img.ruta_archivo) }}" style="width:60px;height:60px;object-fit:cover;" class="rounded border">
+            <img src="{{ url_for('static', filename=img.ruta_archivo) }}"
+                style="width:60px;height:60px;object-fit:cover;" class="rounded border">
             {% endfor %}
         </div>
     </div>
 
     <div class="col-md-6">
+        <div class="mb-2">
+            {% if producto.es_nuevo %}<span class="badge-producto badge-nuevo">Nuevo</span>{% endif %}
+            {% if producto.es_destacado %}<span class="badge-producto badge-destacado">Destacado</span>{% endif %}
+            {% if producto.en_oferta %}<span class="badge-producto badge-oferta">-{{ producto.porcentaje_descuento|int
+                }}%</span>{% endif %}
+            {% if producto.id in ids_mas_vendidos %}<span class="badge-producto badge-mas-vendido">Más vendido</span>{%
+            endif %}
+        </div>
         <h2>{{ producto.nombre }}</h2>
-        <p class="text-muted">SKU: {{ producto.sku }} · {{ producto.categoria.nombre }}{% if producto.subcategoria %} / {{ producto.subcategoria.nombre }}{% endif %}</p>
+        <p class="text-muted">SKU: {{ producto.sku }} · {{ producto.categoria.nombre }}{% if producto.subcategoria %} /
+            {{ producto.subcategoria.nombre }}{% endif %}</p>
 
+        {% if producto.en_oferta %}
+        <p class="mb-0"><span class="text-decoration-line-through text-muted">Bs. {{
+                "%.2f"|format(producto.precio_publico) }}</span></p>
+        {% endif %}
         <h3 class="mb-0">Bs. {{ "%.2f"|format(precio_unitario) }}</h3>
-        {% if tipo_tarifa != "Menudeo" %}<p class="text-muted">Precio {{ tipo_tarifa }} aplicado a tu cuenta</p>{% endif %}
+        {% if tipo_tarifa != "Menudeo" %}<p class="text-muted">Precio {{ tipo_tarifa }} aplicado a tu cuenta</p>{% endif
+        %}
 
         <div class="alert alert-light border small">
-            Compra {{ umbral_docena }} pares o más de este producto y el precio baja automáticamente a
-            <strong>Bs. {{ "%.2f"|format(precio_docena) }}</strong> por par (Precio Mayorista / Por Docena).
+            Compra {{ umbral_docena }} unidades o más de este producto y el precio baja automáticamente a
+            <strong>Bs. {{ "%.2f"|format(precio_docena) }}</strong> por unidad (Precio Mayorista / Por Docena).
         </div>
 
         {% if producto.descripcion %}<p>{{ producto.descripcion }}</p>{% endif %}
 
+        <p class="small {% if producto.stock > 0 %}text-success{% else %}text-danger{% endif %}">
+            {{ "En stock (" + producto.stock|string + " disponibles)" if producto.stock > 0 else "Sin stock disponible
+            por el momento" }}
+        </p>
+
         <form method="POST" action="{{ url_for('tienda.agregar_carrito') }}" class="mt-3">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="producto_id" value="{{ producto.id }}">
-            <div class="mb-3">
-                <label class="form-label">Talla</label>
-                <select name="talla" class="form-select" required>
-                    <option value="" disabled selected>Selecciona una talla</option>
-                    {% for talla, stock in tallas_disponibles.items() %}
-                        <option value="{{ talla }}">{{ talla }} ({{ stock }} disp.)</option>
-                    {% endfor %}
-                </select>
-                {% if not tallas_disponibles %}<div class="text-danger small mt-1">Sin stock disponible por el momento.</div>{% endif %}
-            </div>
             <div class="mb-3" style="max-width:120px;">
                 <label class="form-label">Cantidad</label>
-                <input type="number" name="cantidad" value="1" min="1" class="form-control">
+                <input type="number" name="cantidad" value="1" min="1" max="{{ producto.stock }}" class="form-control">
             </div>
-            <button type="submit" class="btn btn-nahara" {% if not tallas_disponibles %}disabled{% endif %}>Añadir al carrito</button>
+            <button type="submit" class="btn btn-nahara" {% if producto.stock <=0 %}disabled{% endif %}>Añadir al
+                carrito</button>
             <span class="text-muted small d-block mt-2">Retiro en tienda disponible en 24h.</span>
         </form>
     </div>
@@ -63,7 +75,8 @@
         <a href="{{ url_for('tienda.producto_detalle', producto_id=r.id) }}" class="text-decoration-none text-dark">
             <div class="card h-100">
                 {% if r.imagen_principal %}
-                    <img src="{{ url_for('static', filename=r.imagen_principal.ruta_archivo) }}" class="card-img-top" style="height:150px;object-fit:cover;">
+                <img src="{{ url_for('static', filename=r.imagen_principal.ruta_archivo) }}" class="card-img-top"
+                    style="height:150px;object-fit:cover;">
                 {% endif %}
                 <div class="card-body">
                     <p class="mb-0 small">{{ r.nombre }}</p>

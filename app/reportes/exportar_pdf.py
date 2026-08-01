@@ -16,14 +16,13 @@ def exportar_reporte_pdf(filas, resumen, filtros_texto):
         Spacer(1, 10),
     ]
 
-    datos = [["Fecha", "Pedido", "Producto", "Categoría", "Talla", "Canal", "Cant.", "P. Unit.", "Subtotal"]]
+    datos = [["Fecha", "Pedido", "Producto", "Categoría", "Canal", "Cant.", "P. Unit.", "Subtotal"]]
     for f in filas:
         datos.append([
             f["fecha"].strftime("%Y-%m-%d"),
             f"#{f['pedido_id']}",
             f["producto"],
             f["categoria"],
-            str(f["talla"]),
             f["canal"],
             str(f["cantidad"]),
             f"{float(f['precio_unitario']):.2f}",
@@ -36,7 +35,7 @@ def exportar_reporte_pdf(filas, resumen, filtros_texto):
         ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#f4ca00")),
         ("FONTSIZE", (0, 0), (-1, -1), 8),
         ("GRID", (0, 0), (-1, -1), 0.4, colors.grey),
-        ("ALIGN", (6, 1), (-1, -1), "RIGHT"),
+        ("ALIGN", (5, 1), (-1, -1), "RIGHT"),
     ]))
     elementos.append(tabla)
     elementos.append(Spacer(1, 14))

@@ -106,12 +106,9 @@ class Subcategoria(db.Model):
 
 
 # ---------------------------------------------------------------------------
-# Productos, tallas/stock y galería de fotos (Fase 3)
+# Productos, stock y galería de fotos (Fase 3 — sin tallas: se venden
+# productos variados, no solo calzado)
 # ---------------------------------------------------------------------------
-ESTADOS_PRODUCTO = ["Activo", "Inactivo", "En Oferta", "Seccion WOW"]
-TALLAS_CALZADO = list(range(33, 46))  # 33 a 45
-
-
 class Producto(db.Model):
     __tablename__ = "productos"
 
@@ -128,23 +125,31 @@ class Producto(db.Model):
     precio_minorista = db.Column(db.Numeric(10, 2), nullable=False)
     precio_mayorista = db.Column(db.Numeric(10, 2), nullable=False)
 
-    estado = db.Column(db.String(20), default="Activo", nullable=False)
+    # Stock único del producto (ya no se desglosa por talla)
+    stock = db.Column(db.Integer, default=0, nullable=False)
+
+    # Visibilidad: Activo lo ven todos los clientes; Inactivo solo el
+    # personal interno (Gerente/Administrador/Empleado) lo ve, marcado
+    # como "Inactivo", en el panel.
+    activo = db.Column(db.Boolean, default=True, nullable=False)
+
+    # Banderas de estado combinables (un producto puede ser Nuevo Y estar
+    # en oferta al mismo tiempo, por ejemplo).
+    es_nuevo = db.Column(db.Boolean, default=False, nullable=False)
+    es_destacado = db.Column(db.Boolean, default=False, nullable=False)  # antes "Sección WOW"
+    en_oferta = db.Column(db.Boolean, default=False, nullable=False)
+    porcentaje_descuento = db.Column(db.Numeric(5, 2), nullable=True)  # ej. 20.00 = 20%
+    # "Más vendido" NO se guarda aquí: se calcula en vivo a partir de las
+    # ventas reales (ver app/productos/utils_mas_vendidos.py), tal como
+    # se pidió expresamente.
 
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     creado_por_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), nullable=True)
 
-    tallas = db.relationship(
-        "ProductoTalla", backref="producto", lazy=True, cascade="all, delete-orphan",
-        order_by="ProductoTalla.talla",
-    )
     imagenes = db.relationship(
         "ProductoImagen", backref="producto", lazy=True, cascade="all, delete-orphan",
         order_by="ProductoImagen.orden",
     )
-
-    @property
-    def stock_total(self):
-        return sum(t.stock for t in self.tallas)
 
     @property
     def imagen_principal(self):
@@ -153,24 +158,30 @@ class Producto(db.Model):
                 return img
         return self.imagenes[0] if self.imagenes else None
 
+    def _precio_final(self, precio_base):
+        if self.en_oferta and self.porcentaje_descuento:
+            factor = (100 - float(self.porcentaje_descuento)) / 100
+            return round(float(precio_base) * factor, 2)
+        return float(precio_base)
+
+    @property
+    def precio_publico_final(self):
+        return self._precio_final(self.precio_publico)
+
+    @property
+    def precio_minorista_final(self):
+        return self._precio_final(self.precio_minorista)
+
+    @property
+    def precio_mayorista_final(self):
+        return self._precio_final(self.precio_mayorista)
+
     def __repr__(self):
         return f"<Producto {self.sku} - {self.nombre}>"
 
 
-class ProductoTalla(db.Model):
-    """Desglose de stock por talla/número de calzado (33 a 45)."""
-    __tablename__ = "producto_tallas"
-
-    id = db.Column(db.Integer, primary_key=True)
-    producto_id = db.Column(db.Integer, db.ForeignKey("productos.id"), nullable=False)
-    talla = db.Column(db.Integer, nullable=False)
-    stock = db.Column(db.Integer, default=0, nullable=False)
-
-    __table_args__ = (db.UniqueConstraint("producto_id", "talla", name="uq_talla_por_producto"),)
-
-
 class ProductoImagen(db.Model):
-    """Foto del calzado; se permite carga múltiple con orden y una imagen
+    """Foto del producto; se permite carga múltiple con orden y una imagen
     marcada como principal (portada de la tarjeta/PDP)."""
     __tablename__ = "producto_imagenes"
 
@@ -256,7 +267,6 @@ class ItemPedido(db.Model):
     producto_id = db.Column(db.Integer, db.ForeignKey("productos.id"), nullable=False)
 
     nombre_producto = db.Column(db.String(150), nullable=False)  # copia histórica
-    talla = db.Column(db.Integer, nullable=False)
     cantidad = db.Column(db.Integer, nullable=False)
     precio_unitario = db.Column(db.Numeric(10, 2), nullable=False)
     subtotal = db.Column(db.Numeric(10, 2), nullable=False)

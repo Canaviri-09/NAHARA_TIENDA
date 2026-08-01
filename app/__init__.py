@@ -61,6 +61,16 @@ def create_app(config_class=Config):
             "resumen_carrito": lambda: calcular_resumen_carrito(current_user_seguro()),
         }
 
+    @app.context_processor
+    def inyectar_categorias_menu():
+        from app.models_all import Categoria
+        categorias = (
+            Categoria.query.filter_by(activo=True)
+            .order_by(Categoria.nombre)
+            .all()
+        )
+        return {"categorias_menu": categorias}
+
     def current_user_seguro():
         from flask_login import current_user
         return current_user

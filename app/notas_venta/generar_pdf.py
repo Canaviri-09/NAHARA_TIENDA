@@ -106,15 +106,13 @@ def generar_pdf_nota_venta(pedido, empresa):
     # --- Tabla de artículos ---
     columnas_x = {
         "cant": MARGEN,
-        "unidad": MARGEN + 25,
-        "producto": MARGEN + 65,
+        "producto": MARGEN + 40,
         "precio": ANCHO - MARGEN - 150,
         "desc": ANCHO - MARGEN - 95,
         "subtotal": ANCHO - MARGEN - 45,
     }
     c.setFont("Helvetica-Bold", 8)
     c.drawString(columnas_x["cant"], y, "CANT.")
-    c.drawString(columnas_x["unidad"], y, "TALLA")
     c.drawString(columnas_x["producto"], y, "PRODUCTO")
     c.drawRightString(columnas_x["precio"] + 30, y, "PRECIO")
     c.drawRightString(columnas_x["desc"] + 25, y, "DESC.")
@@ -126,8 +124,7 @@ def generar_pdf_nota_venta(pedido, empresa):
     c.setFont("Helvetica", 8)
     for item in pedido.items:
         c.drawString(columnas_x["cant"], y, f"{item.cantidad:.2f}")
-        c.drawString(columnas_x["unidad"], y, f"N° {item.talla}")
-        nombre_producto = item.nombre_producto[:45]
+        nombre_producto = item.nombre_producto[:55]
         c.drawString(columnas_x["producto"], y, nombre_producto)
         c.drawRightString(columnas_x["precio"] + 30, y, f"{float(item.precio_unitario):.2f}")
         c.drawRightString(columnas_x["desc"] + 25, y, "0.00")
