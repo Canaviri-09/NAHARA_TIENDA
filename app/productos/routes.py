@@ -56,7 +56,6 @@ def nuevo():
             precio_mayorista=formulario.precio_mayorista.data,
             stock=formulario.stock.data,
             activo=formulario.activo.data,
-            es_nuevo=formulario.es_nuevo.data,
             es_destacado=formulario.es_destacado.data,
             en_oferta=formulario.en_oferta.data,
             porcentaje_descuento=formulario.porcentaje_descuento.data if formulario.en_oferta.data else None,
@@ -100,7 +99,6 @@ def editar(producto_id):
             producto.precio_mayorista = formulario.precio_mayorista.data
             producto.stock = formulario.stock.data
             producto.activo = formulario.activo.data
-            producto.es_nuevo = formulario.es_nuevo.data
             producto.es_destacado = formulario.es_destacado.data
             producto.en_oferta = formulario.en_oferta.data
             producto.porcentaje_descuento = formulario.porcentaje_descuento.data if formulario.en_oferta.data else None

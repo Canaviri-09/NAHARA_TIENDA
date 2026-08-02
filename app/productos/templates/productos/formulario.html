@@ -28,11 +28,11 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             {{ formulario.categoria_id.label(class="form-label") }}
-                            {{ formulario.categoria_id(class="form-select") }}
+                            {{ formulario.categoria_id(class="form-select", id="selectCategoria") }}
                         </div>
                         <div class="col-md-6 mb-3">
                             {{ formulario.subcategoria_id.label(class="form-label") }}
-                            {{ formulario.subcategoria_id(class="form-select") }}
+                            {{ formulario.subcategoria_id(class="form-select", id="selectSubcategoria") }}
                         </div>
                     </div>
                     <div class="mb-0">
@@ -126,10 +126,8 @@
 
                     <hr>
                     <p class="fw-bold mb-2">Etiquetas de estado (puedes combinar varias)</p>
-                    <div class="mb-2 form-check">
-                        {{ formulario.es_nuevo(class="form-check-input") }}
-                        {{ formulario.es_nuevo.label(class="form-check-label") }}
-                    </div>
+                    <p class="small text-muted">"Nuevo" se activa solo durante los primeros 30 días desde que se crea el
+                        producto — no se marca aquí.</p>
                     <div class="mb-2 form-check">
                         {{ formulario.es_destacado(class="form-check-input") }}
                         {{ formulario.es_destacado.label(class="form-check-label") }}
@@ -166,5 +164,36 @@
     }
     checkOferta.addEventListener('change', actualizarCampoPorcentaje);
     actualizarCampoPorcentaje();
+
+    // --- Subcategorías dependientes de la categoría elegida (AJAX) ---
+    const selectCategoria = document.getElementById('selectCategoria');
+    const selectSubcategoria = document.getElementById('selectSubcategoria');
+    const subcategoriaActualId = {{ (producto.subcategoria_id if producto else 0) | tojson }};
+
+    function cargarSubcategorias(categoriaId, subcategoriaSeleccionada) {
+        selectSubcategoria.innerHTML = '<option value="0">— Sin subcategoría —</option>';
+        if (!categoriaId) return;
+
+        fetch(`/categorias/api/subcategorias-por-categoria/${categoriaId}`)
+            .then(function (respuesta) { return respuesta.json(); })
+            .then(function (subcategorias) {
+                subcategorias.forEach(function (sub) {
+                    const opcion = document.createElement('option');
+                    opcion.value = sub.id;
+                    opcion.textContent = sub.nombre;
+                    if (subcategoriaSeleccionada && sub.id === subcategoriaSeleccionada) {
+                        opcion.selected = true;
+                    }
+                    selectSubcategoria.appendChild(opcion);
+                });
+            });
+    }
+
+    selectCategoria.addEventListener('change', function () {
+        cargarSubcategorias(this.value, null);
+    });
+
+    // Carga inicial: respeta la subcategoría ya guardada al editar
+    cargarSubcategorias(selectCategoria.value, subcategoriaActualId);
 </script>
 {% endblock %}

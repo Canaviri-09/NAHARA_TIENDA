@@ -1,5 +1,6 @@
 import os
 import uuid
+from datetime import datetime, timedelta
 from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 
@@ -15,6 +16,7 @@ from app.productos.utils_mas_vendidos import obtener_ids_mas_vendidos
 from app.extensions import db
 from app.models_all import (
     Producto, Categoria, ConfiguracionPagoQR, ConfiguracionEmpresa, Pedido, ItemPedido,
+    DIAS_PRODUCTO_NUEVO,
 )
 from app.utilidades import requiere_rol
 
@@ -49,7 +51,8 @@ def catalogo():
         consulta = consulta.filter(Producto.stock <= 0)
 
     if request.args.get("nuevo"):
-        consulta = consulta.filter(Producto.es_nuevo.is_(True))
+        limite_nuevo = datetime.utcnow() - timedelta(days=DIAS_PRODUCTO_NUEVO)
+        consulta = consulta.filter(Producto.fecha_creacion >= limite_nuevo)
     if request.args.get("destacado"):
         consulta = consulta.filter(Producto.es_destacado.is_(True))
     if request.args.get("oferta"):
@@ -91,8 +94,10 @@ def catalogo():
             .order_by(Producto.fecha_creacion.desc()).limit(LIMITE_SECCIONES_HOME).all()
         )
         novedades_home = (
-            Producto.query.filter_by(activo=True, es_nuevo=True)
-            .order_by(Producto.fecha_creacion.desc()).limit(LIMITE_SECCIONES_HOME).all()
+            Producto.query.filter(
+                Producto.activo.is_(True),
+                Producto.fecha_creacion >= datetime.utcnow() - timedelta(days=DIAS_PRODUCTO_NUEVO),
+            ).order_by(Producto.fecha_creacion.desc()).limit(LIMITE_SECCIONES_HOME).all()
         )
 
     return render_template(
@@ -105,6 +110,8 @@ def catalogo():
         destacados_home=destacados_home,
         novedades_home=novedades_home,
         busqueda=q,
+        categoria_id_actual=categoria_id,
+        categorias_home=categorias,
     )
 
 
@@ -113,6 +120,7 @@ def producto_detalle(producto_id):
     producto = Producto.query.filter(Producto.id == producto_id, Producto.activo.is_(True)).first_or_404()
 
     precio_unitario, tipo_tarifa = calcular_precio_unitario(producto, current_user, 0)
+    precio_minorista_cant, _ = calcular_precio_unitario(producto, current_user, current_app.config["UMBRAL_PRECIO_MINORISTA"])
     precio_docena, _ = calcular_precio_unitario(producto, current_user, current_app.config["UMBRAL_PRECIO_DOCENA"])
 
     recomendados = (
@@ -128,8 +136,10 @@ def producto_detalle(producto_id):
         producto=producto,
         precio_unitario=precio_unitario,
         tipo_tarifa=tipo_tarifa,
+        precio_minorista_cant=precio_minorista_cant,
         precio_docena=precio_docena,
         recomendados=recomendados,
+        umbral_minorista=current_app.config["UMBRAL_PRECIO_MINORISTA"],
         umbral_docena=current_app.config["UMBRAL_PRECIO_DOCENA"],
         ids_mas_vendidos=obtener_ids_mas_vendidos(),
     )
@@ -255,7 +265,7 @@ def confirmacion_pedido(pedido_id):
 
 
 # ---------------------------------------------------------------------------
-# Configuración del QR Empresarias (Gerente / Administrador)
+# Configuración del QR institucional (Gerente / Administrador)
 # ---------------------------------------------------------------------------
 @tienda_bp.route("/configurar-pago-qr", methods=["GET", "POST"])
 @login_required

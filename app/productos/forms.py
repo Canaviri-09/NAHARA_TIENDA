@@ -20,8 +20,8 @@ class ProductoForm(FlaskForm):
     # Visibilidad: si está desmarcado, solo el personal interno lo ve (como "Inactivo")
     activo = BooleanField("Activo (visible para clientes)", default=True)
 
-    # Banderas de estado combinables
-    es_nuevo = BooleanField("Nuevo")
+    # Banderas de estado combinables. "Nuevo" no está aquí: se calcula
+    # solo durante los primeros 30 días desde la creación del producto.
     es_destacado = BooleanField("Destacado")
     en_oferta = BooleanField("En oferta")
     porcentaje_descuento = DecimalField(

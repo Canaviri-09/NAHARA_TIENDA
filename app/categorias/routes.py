@@ -1,13 +1,30 @@
-from flask import render_template, redirect, url_for, flash
+import os
+import uuid
+from flask import render_template, redirect, url_for, flash, request, current_app, jsonify
 from flask_login import login_required
 
 from app.categorias import categorias_bp
 from app.categorias.forms import CategoriaForm, SubcategoriaForm
+from app.productos.utils_imagenes import extension_permitida
 from app.extensions import db
 from app.models_all import Categoria, Subcategoria
 from app.utilidades import requiere_rol
 
 ROLES_GESTION = ("Gerente", "Administrador", "Empleado")
+
+
+def _guardar_imagen_categoria(categoria, archivo):
+    if not archivo or not archivo.filename:
+        return
+    if not extension_permitida(archivo.filename):
+        flash("La imagen de la categoría debe ser jpg, jpeg, png o webp.", "danger")
+        return
+    carpeta = os.path.join(current_app.config["UPLOAD_FOLDER"], "categorias")
+    os.makedirs(carpeta, exist_ok=True)
+    extension = archivo.filename.rsplit(".", 1)[1].lower()
+    nombre_unico = f"{uuid.uuid4().hex}.{extension}"
+    archivo.save(os.path.join(carpeta, nombre_unico))
+    categoria.imagen = f"uploads/categorias/{nombre_unico}"
 
 
 @categorias_bp.route("/")
@@ -27,7 +44,9 @@ def nueva():
         if Categoria.query.filter_by(nombre=formulario.nombre.data.strip()).first():
             flash("Ya existe una categoría con ese nombre.", "danger")
         else:
-            db.session.add(Categoria(nombre=formulario.nombre.data.strip(), activo=formulario.activo.data))
+            categoria = Categoria(nombre=formulario.nombre.data.strip(), activo=formulario.activo.data)
+            _guardar_imagen_categoria(categoria, request.files.get("imagen"))
+            db.session.add(categoria)
             db.session.commit()
             flash("Categoría creada correctamente.", "success")
             return redirect(url_for("categorias.listar"))
@@ -43,6 +62,7 @@ def editar(categoria_id):
     if formulario.validate_on_submit():
         categoria.nombre = formulario.nombre.data.strip()
         categoria.activo = formulario.activo.data
+        _guardar_imagen_categoria(categoria, request.files.get("imagen"))
         db.session.commit()
         flash("Categoría actualizada correctamente.", "success")
         return redirect(url_for("categorias.listar"))
@@ -102,3 +122,17 @@ def editar_subcategoria(subcategoria_id):
     return render_template(
         "categorias/formulario_subcategoria.html", formulario=formulario, modo="editar", subcategoria=subcategoria
     )
+
+
+@categorias_bp.route("/api/subcategorias-por-categoria/<int:categoria_id>")
+@login_required
+@requiere_rol(*ROLES_GESTION)
+def api_subcategorias_por_categoria(categoria_id):
+    """Usado por JS en el formulario de productos: al elegir una
+    categoría, recarga solo las subcategorías de esa categoría (antes
+    mostraba todas, sin importar la categoría elegida)."""
+    subcategorias = (
+        Subcategoria.query.filter_by(categoria_id=categoria_id, activo=True)
+        .order_by(Subcategoria.nombre).all()
+    )
+    return jsonify([{"id": s.id, "nombre": s.nombre} for s in subcategorias])

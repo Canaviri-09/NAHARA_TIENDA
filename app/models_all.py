@@ -81,6 +81,7 @@ class Categoria(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), unique=True, nullable=False)
     activo = db.Column(db.Boolean, default=True, nullable=False)
+    imagen = db.Column(db.String(255), nullable=True)  # ruta relativa dentro de app/static/
 
     subcategorias = db.relationship("Subcategoria", backref="categoria", lazy=True)
     productos = db.relationship("Producto", backref="categoria", lazy=True)
@@ -109,6 +110,9 @@ class Subcategoria(db.Model):
 # Productos, stock y galería de fotos (Fase 3 — sin tallas: se venden
 # productos variados, no solo calzado)
 # ---------------------------------------------------------------------------
+DIAS_PRODUCTO_NUEVO = 30  # cuántos días después de creado un producto se considera "Nuevo"
+
+
 class Producto(db.Model):
     __tablename__ = "productos"
 
@@ -135,7 +139,8 @@ class Producto(db.Model):
 
     # Banderas de estado combinables (un producto puede ser Nuevo Y estar
     # en oferta al mismo tiempo, por ejemplo).
-    es_nuevo = db.Column(db.Boolean, default=False, nullable=False)
+    # "Nuevo" NO se guarda: se calcula solo por fecha_creacion (ver
+    # DIAS_PRODUCTO_NUEVO más abajo) — no hay casilla en el formulario.
     es_destacado = db.Column(db.Boolean, default=False, nullable=False)  # antes "Sección WOW"
     en_oferta = db.Column(db.Boolean, default=False, nullable=False)
     porcentaje_descuento = db.Column(db.Numeric(5, 2), nullable=True)  # ej. 20.00 = 20%
@@ -150,6 +155,13 @@ class Producto(db.Model):
         "ProductoImagen", backref="producto", lazy=True, cascade="all, delete-orphan",
         order_by="ProductoImagen.orden",
     )
+
+    @property
+    def es_nuevo(self):
+        """Un producto es "Nuevo" automáticamente durante los primeros
+        DIAS_PRODUCTO_NUEVO días desde su creación; después pasa a
+        aparecer solo en su categoría, sin intervención manual."""
+        return (datetime.utcnow() - self.fecha_creacion).days < DIAS_PRODUCTO_NUEVO
 
     @property
     def imagen_principal(self):

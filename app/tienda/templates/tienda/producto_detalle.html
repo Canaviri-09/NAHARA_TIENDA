@@ -41,7 +41,9 @@
         %}
 
         <div class="alert alert-light border small">
-            Compra {{ umbral_docena }} unidades o más de este producto y el precio baja automáticamente a
+            Compra {{ umbral_minorista }} a {{ umbral_docena - 1 }} unidades y el precio baja a
+            <strong>Bs. {{ "%.2f"|format(precio_minorista_cant) }}</strong> por unidad (Precio Minorista).<br>
+            Compra {{ umbral_docena }} unidades o más y baja a
             <strong>Bs. {{ "%.2f"|format(precio_docena) }}</strong> por unidad (Precio Mayorista / Por Docena).
         </div>
 
