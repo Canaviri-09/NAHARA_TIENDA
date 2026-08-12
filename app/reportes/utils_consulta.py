@@ -1,5 +1,5 @@
 from app.extensions import db
-from app.models_all import ItemPedido, Pedido, Producto, Categoria
+from app.models_all import ItemPedido, Pedido, Producto, Categoria, NIVELES_PRECIO
 
 VENTAS_VALIDAS = ("Pagado", "En preparación", "Entregado")
 
@@ -25,7 +25,7 @@ def consultar_ventas(fecha_desde=None, fecha_hasta=None, producto_id=None, categ
     if categoria_id:
         consulta = consulta.filter(Producto.categoria_id == categoria_id)
     if canal:
-        consulta = consulta.filter(ItemPedido.tipo_tarifa == canal)
+        consulta = consulta.filter(ItemPedido.nivel_precio == canal)
 
     consulta = consulta.order_by(Pedido.fecha_creacion.desc())
 
@@ -36,7 +36,7 @@ def consultar_ventas(fecha_desde=None, fecha_hasta=None, producto_id=None, categ
             "pedido_id": pedido.id,
             "producto": producto.nombre,
             "categoria": producto.categoria.nombre if producto.categoria else "-",
-            "canal": item.tipo_tarifa,
+            "canal": item.nivel_precio,
             "cantidad": item.cantidad,
             "precio_unitario": item.precio_unitario,
             "subtotal": item.subtotal,
@@ -50,7 +50,7 @@ def calcular_resumen(filas):
         "total_unidades": sum(f["cantidad"] for f in filas),
         "por_canal": {},
     }
-    for canal in ("Menudeo", "Minorista", "Docena"):
+    for canal in NIVELES_PRECIO:
         filas_canal = [f for f in filas if f["canal"] == canal]
         resumen["por_canal"][canal] = {
             "unidades": sum(f["cantidad"] for f in filas_canal),

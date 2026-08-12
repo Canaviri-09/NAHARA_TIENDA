@@ -8,14 +8,7 @@
 {% else %}
 <table class="table bg-white align-middle">
     <thead class="table-dark">
-        <tr>
-            <th>Producto</th>
-            <th>Cantidad</th>
-            <th>Precio unit.</th>
-            <th>Tarifa</th>
-            <th>Subtotal</th>
-            <th></th>
-        </tr>
+        <tr><th>Producto</th><th>Cantidad</th><th>Precio unit.</th><th>Tarifa</th><th>Subtotal</th><th></th></tr>
     </thead>
     <tbody>
         {% for l in lineas %}
@@ -25,15 +18,14 @@
                 <form method="POST" action="{{ url_for('tienda.actualizar_carrito') }}" class="d-flex gap-1">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="producto_id" value="{{ l.producto.id }}">
-                    <input type="number" name="cantidad" value="{{ l.cantidad }}" min="1" max="{{ l.producto.stock }}"
-                        class="form-control form-control-sm">
+                    <input type="number" name="cantidad" value="{{ l.cantidad }}" min="1" max="{{ l.producto.stock }}" class="form-control form-control-sm">
                     <button type="submit" class="btn btn-sm btn-outline-dark">↻</button>
                 </form>
             </td>
             <td>Bs. {{ "%.2f"|format(l.precio_unitario) }}</td>
             <td>
-                {% if l.tipo_tarifa == "Docena" %}<span class="badge bg-success">{{ l.tipo_tarifa }}</span>
-                {% else %}{{ l.tipo_tarifa }}{% endif %}
+                {% if l.nivel_precio == "Mayorista" %}<span class="badge bg-success">{{ l.nivel_precio }}</span>
+                {% else %}{{ l.nivel_precio }}{% endif %}
             </td>
             <td>Bs. {{ "%.2f"|format(l.subtotal) }}</td>
             <td>

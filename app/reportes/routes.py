@@ -6,7 +6,7 @@ from app.reportes import reportes_bp
 from app.reportes.utils_consulta import consultar_ventas, calcular_resumen
 from app.reportes.exportar_pdf import exportar_reporte_pdf
 from app.reportes.exportar_excel import exportar_reporte_excel
-from app.models_all import Producto, Categoria, TIPOS_TARIFA
+from app.models_all import Producto, Categoria, NIVELES_PRECIO
 from app.utilidades import requiere_rol
 
 ROLES_GESTION = ("Gerente", "Administrador", "Empleado")
@@ -60,7 +60,7 @@ def index():
 
     return render_template(
         "reportes/index.html", filas=filas, resumen=resumen, filtros=filtros,
-        productos=productos, categorias=categorias, canales=TIPOS_TARIFA,
+        productos=productos, categorias=categorias, canales=NIVELES_PRECIO,
     )
 
 

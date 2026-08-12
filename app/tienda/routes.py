@@ -7,6 +7,7 @@ from flask_login import login_required, current_user
 from app.tienda import tienda_bp
 from app.tienda.forms import CheckoutForm
 from app.tienda.utils_precios import calcular_precio_unitario
+from app.tienda.utils_moneda import obtener_tipo_cambio
 from app.tienda.utils_carrito import (
     agregar_al_carrito, actualizar_cantidad_carrito, eliminar_del_carrito,
     vaciar_carrito, calcular_resumen_carrito,
@@ -16,7 +17,7 @@ from app.productos.utils_mas_vendidos import obtener_ids_mas_vendidos
 from app.extensions import db
 from app.models_all import (
     Producto, Categoria, ConfiguracionPagoQR, ConfiguracionEmpresa, Pedido, ItemPedido,
-    DIAS_PRODUCTO_NUEVO,
+    DIAS_PRODUCTO_NUEVO, MetodoEnvio,
 )
 from app.utilidades import requiere_rol
 
@@ -68,9 +69,9 @@ def catalogo():
     elif orden == "za":
         consulta = consulta.order_by(Producto.nombre.desc())
     elif orden == "precio_asc":
-        consulta = consulta.order_by(Producto.precio_publico.asc())
+        consulta = consulta.order_by(Producto.precio_minorista_usd.asc())
     elif orden == "precio_desc":
-        consulta = consulta.order_by(Producto.precio_publico.desc())
+        consulta = consulta.order_by(Producto.precio_minorista_usd.desc())
     elif orden == "fecha":
         consulta = consulta.order_by(Producto.fecha_creacion.desc())
     else:
@@ -119,9 +120,7 @@ def catalogo():
 def producto_detalle(producto_id):
     producto = Producto.query.filter(Producto.id == producto_id, Producto.activo.is_(True)).first_or_404()
 
-    precio_unitario, tipo_tarifa = calcular_precio_unitario(producto, current_user, 0)
-    precio_minorista_cant, _ = calcular_precio_unitario(producto, current_user, current_app.config["UMBRAL_PRECIO_MINORISTA"])
-    precio_docena, _ = calcular_precio_unitario(producto, current_user, current_app.config["UMBRAL_PRECIO_DOCENA"])
+    precio_unitario, nivel_precio = calcular_precio_unitario(producto, current_user, 0)
 
     recomendados = (
         Producto.query.filter(
@@ -135,12 +134,9 @@ def producto_detalle(producto_id):
         "tienda/producto_detalle.html",
         producto=producto,
         precio_unitario=precio_unitario,
-        tipo_tarifa=tipo_tarifa,
-        precio_minorista_cant=precio_minorista_cant,
-        precio_docena=precio_docena,
+        nivel_precio=nivel_precio,
         recomendados=recomendados,
-        umbral_minorista=current_app.config["UMBRAL_PRECIO_MINORISTA"],
-        umbral_docena=current_app.config["UMBRAL_PRECIO_DOCENA"],
+        umbral_mayorista=current_app.config["UMBRAL_PRECIO_MAYORISTA"],
         ids_mas_vendidos=obtener_ids_mas_vendidos(),
     )
 
@@ -183,7 +179,7 @@ def eliminar_carrito():
 @tienda_bp.route("/carrito")
 def ver_carrito():
     lineas, total = calcular_resumen_carrito(current_user)
-    return render_template("tienda/carrito.html", lineas=lineas, total=total, umbral_docena=current_app.config["UMBRAL_PRECIO_DOCENA"])
+    return render_template("tienda/carrito.html", lineas=lineas, total=total, umbral_mayorista=current_app.config["UMBRAL_PRECIO_MAYORISTA"])
 
 
 # ---------------------------------------------------------------------------
@@ -199,6 +195,7 @@ def checkout():
 
     formulario = CheckoutForm()
     configuracion_qr = ConfiguracionPagoQR.query.first()
+    metodos_envio = MetodoEnvio.query.filter_by(activo=True).order_by(MetodoEnvio.costo).all()
 
     if formulario.validate_on_submit():
         comprobante = request.files.get("comprobante")
@@ -209,7 +206,7 @@ def checkout():
                 flash("El comprobante debe ser una imagen (jpg, jpeg, png o webp).", "danger")
                 return render_template(
                     "tienda/checkout.html", formulario=formulario, lineas=lineas, total=total,
-                    configuracion_qr=configuracion_qr,
+                    configuracion_qr=configuracion_qr, metodos_envio=metodos_envio,
                 )
             carpeta = os.path.join(current_app.config["UPLOAD_FOLDER"], "comprobantes")
             os.makedirs(carpeta, exist_ok=True)
@@ -218,17 +215,33 @@ def checkout():
             comprobante.save(os.path.join(carpeta, nombre_unico))
             ruta_comprobante = f"uploads/comprobantes/{nombre_unico}"
 
-        # Determina el tipo de tarifa predominante del pedido (la de mayor línea)
-        tipo_tarifa_pedido = max(lineas, key=lambda l: l["subtotal"])["tipo_tarifa"] if lineas else "Menudeo"
+        # Costo de envío: solo aplica si el cliente eligió "Envio" y escogió un método
+        costo_envio = 0
+        metodo_envio_nombre = None
+        if formulario.tipo_entrega.data == "Envio":
+            metodo_envio_id = request.form.get("metodo_envio_id", type=int)
+            metodo = MetodoEnvio.query.filter_by(id=metodo_envio_id, activo=True).first() if metodo_envio_id else None
+            if metodo:
+                costo_envio = float(metodo.costo)
+                metodo_envio_nombre = metodo.nombre
+
+        total_con_envio = float(total) + costo_envio
+
+        # Determina el nivel de precio predominante del pedido (el de mayor línea)
+        nivel_precio_pedido = max(lineas, key=lambda l: l["subtotal"])["nivel_precio"] if lineas else "Minorista"
+        tipo_cambio_hoy = obtener_tipo_cambio()
 
         pedido = Pedido(
             usuario_id=current_user.id,
-            tipo_tarifa=tipo_tarifa_pedido,
+            nivel_precio=nivel_precio_pedido,
             tipo_entrega=formulario.tipo_entrega.data,
             direccion_envio=formulario.direccion_envio.data,
+            metodo_envio_nombre=metodo_envio_nombre,
+            costo_envio=costo_envio,
             nota=formulario.nota.data,
+            tipo_cambio_aplicado=tipo_cambio_hoy,
             subtotal=total,
-            total=total,
+            total=total_con_envio,
             comprobante_pago=ruta_comprobante,
             estado="Pendiente de verificación",
         )
@@ -236,14 +249,17 @@ def checkout():
         db.session.flush()
 
         for linea in lineas:
+            producto_linea = linea["producto"]
             db.session.add(ItemPedido(
                 pedido_id=pedido.id,
-                producto_id=linea["producto"].id,
-                nombre_producto=linea["producto"].nombre,
+                producto_id=producto_linea.id,
+                nombre_producto=producto_linea.nombre,
                 cantidad=linea["cantidad"],
                 precio_unitario=linea["precio_unitario"],
+                precio_unitario_usd=producto_linea.precio_final_usd(linea["nivel_precio"]),
+                precio_compra_unitario_usd=producto_linea.precio_compra_usd,
                 subtotal=linea["subtotal"],
-                tipo_tarifa=linea["tipo_tarifa"],
+                nivel_precio=linea["nivel_precio"],
             ))
 
         db.session.commit()
@@ -254,6 +270,7 @@ def checkout():
 
     return render_template(
         "tienda/checkout.html", formulario=formulario, lineas=lineas, total=total, configuracion_qr=configuracion_qr,
+        metodos_envio=metodos_envio,
     )
 
 
@@ -267,6 +284,27 @@ def confirmacion_pedido(pedido_id):
 # ---------------------------------------------------------------------------
 # Configuración del QR institucional (Gerente / Administrador)
 # ---------------------------------------------------------------------------
+@tienda_bp.route("/actualizar-tipo-cambio", methods=["POST"])
+@login_required
+@requiere_rol("Gerente", "Administrador")
+def actualizar_tipo_cambio():
+    nuevo_valor = request.form.get("tipo_cambio_usd", type=float)
+    if not nuevo_valor or nuevo_valor <= 0:
+        flash("Ingresa un tipo de cambio válido.", "danger")
+        return redirect(url_for("tienda.configurar_pago_qr"))
+
+    empresa = ConfiguracionEmpresa.query.first()
+    if empresa is None:
+        empresa = ConfiguracionEmpresa()
+        db.session.add(empresa)
+
+    empresa.tipo_cambio_usd = nuevo_valor
+    empresa.tipo_cambio_actualizado = datetime.utcnow()
+    db.session.commit()
+    flash(f"Tipo de cambio actualizado a {nuevo_valor} Bs./USD. Todos los precios en Bs. ya se recalcularon.", "success")
+    return redirect(url_for("tienda.configurar_pago_qr"))
+
+
 @tienda_bp.route("/configurar-pago-qr", methods=["GET", "POST"])
 @login_required
 @requiere_rol("Gerente", "Administrador")
@@ -311,3 +349,57 @@ def configurar_pago_qr():
         return redirect(url_for("tienda.configurar_pago_qr"))
 
     return render_template("tienda/configurar_qr.html", configuracion=configuracion, empresa=empresa)
+
+
+# ---------------------------------------------------------------------------
+# Métodos de envío (Gerente / Administrador): costo terrestre/aéreo, se
+# actualiza manualmente según lo que cobren las empresas de transporte.
+# ---------------------------------------------------------------------------
+@tienda_bp.route("/metodos-envio", methods=["GET", "POST"])
+@login_required
+@requiere_rol("Gerente", "Administrador")
+def metodos_envio():
+    if request.method == "POST":
+        nombre = request.form.get("nombre", "").strip()
+        costo = request.form.get("costo", type=float)
+        if not nombre or costo is None or costo < 0:
+            flash("Ingresa un nombre y un costo válido.", "danger")
+        else:
+            db.session.add(MetodoEnvio(nombre=nombre, costo=costo, activo=True))
+            db.session.commit()
+            flash(f"Método de envío '{nombre}' agregado.", "success")
+        return redirect(url_for("tienda.metodos_envio"))
+
+    metodos = MetodoEnvio.query.order_by(MetodoEnvio.activo.desc(), MetodoEnvio.nombre).all()
+    return render_template("tienda/metodos_envio.html", metodos=metodos)
+
+
+@tienda_bp.route("/metodos-envio/<int:metodo_id>/actualizar-costo", methods=["POST"])
+@login_required
+@requiere_rol("Gerente", "Administrador")
+def actualizar_costo_envio(metodo_id):
+    metodo = MetodoEnvio.query.get_or_404(metodo_id)
+    costo = request.form.get("costo", type=float)
+    if costo is None or costo < 0:
+        flash("Ingresa un costo válido.", "danger")
+    else:
+        metodo.costo = costo
+        db.session.commit()
+        flash(f"Costo de '{metodo.nombre}' actualizado a Bs. {costo:.2f}.", "success")
+    return redirect(url_for("tienda.metodos_envio"))
+
+
+@tienda_bp.route("/metodos-envio/<int:metodo_id>/alternar", methods=["POST"])
+@login_required
+@requiere_rol("Gerente", "Administrador")
+def alternar_metodo_envio(metodo_id):
+    metodo = MetodoEnvio.query.get_or_404(metodo_id)
+    metodo.activo = not metodo.activo
+    db.session.commit()
+    flash(f"'{metodo.nombre}' {'activado' if metodo.activo else 'desactivado'}.", "info")
+    return redirect(url_for("tienda.metodos_envio"))
+
+
+@tienda_bp.route("/politica-privacidad")
+def politica_privacidad():
+    return render_template("tienda/politica_privacidad.html")

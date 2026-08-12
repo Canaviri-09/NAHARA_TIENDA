@@ -53,7 +53,7 @@ def calcular_resumen_carrito(usuario):
             productos_invalidos.append(producto_id)
             continue
 
-        precio_unitario, tipo_tarifa = calcular_precio_unitario(producto, usuario, cantidad)
+        precio_unitario, nivel_precio = calcular_precio_unitario(producto, usuario, cantidad)
         subtotal = precio_unitario * cantidad
         total_general += subtotal
 
@@ -61,7 +61,7 @@ def calcular_resumen_carrito(usuario):
             "producto": producto,
             "cantidad": cantidad,
             "precio_unitario": precio_unitario,
-            "tipo_tarifa": tipo_tarifa,
+            "nivel_precio": nivel_precio,
             "subtotal": subtotal,
         })
 

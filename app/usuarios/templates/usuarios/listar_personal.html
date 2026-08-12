@@ -40,6 +40,10 @@
                         {{ "Desactivar" if u.activo else "Activar" }}
                     </button>
                 </form>
+                <form method="POST" action="{{ url_for('usuarios.eliminar_personal', usuario_id=u.id) }}" class="d-inline" onsubmit="return confirm('¿Eliminar a {{ u.nombre }}? Esta acción no se puede deshacer.');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                </form>
                 {% endif %}
             </td>
         </tr>

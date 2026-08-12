@@ -24,13 +24,14 @@
             <a href="{{ url_for('tienda.producto_detalle', producto_id=p.id) }}" class="text-decoration-none text-dark">{{ p.nombre }}</a>
         </h6>
         <div class="mt-auto">
+            {% set precio_tarjeta, nivel_tarjeta = calcular_precio_unitario(p, current_user, 0) %}
             {% if p.en_oferta %}
                 <p class="mb-1">
-                    <span class="text-decoration-line-through text-muted small">Bs. {{ "%.2f"|format(p.precio_publico) }}</span>
-                    <span class="fw-bold ms-1">Bs. {{ "%.2f"|format(p.precio_publico_final) }}</span>
+                    <span class="text-decoration-line-through text-muted small">Bs. {{ "%.2f"|format(p.precio_usd_por_nivel(nivel_tarjeta) * tipo_cambio_actual()) }}</span>
+                    <span class="fw-bold ms-1">Bs. {{ "%.2f"|format(precio_tarjeta) }}</span>
                 </p>
             {% else %}
-                <p class="mb-1 fw-bold">Bs. {{ "%.2f"|format(p.precio_publico_final) }}</p>
+                <p class="mb-1 fw-bold">Bs. {{ "%.2f"|format(precio_tarjeta) }}</p>
             {% endif %}
             <form method="POST" action="{{ url_for('tienda.agregar_carrito') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from app.usuarios import usuarios_bp
 from app.usuarios.forms import FormularioPersonal
 from app.extensions import db, bcrypt
-from app.models_all import Usuario, Rol
+from app.models_all import Usuario, Rol, Pedido
 from app.utilidades import requiere_rol
 
 
@@ -143,3 +143,30 @@ def rechazar_b2b(usuario_id):
     db.session.commit()
     flash(f"Cuenta B2B de '{cliente.nombre}' rechazada.", "info")
     return redirect(url_for("usuarios.aprobaciones_b2b"))
+
+
+@usuarios_bp.route("/<int:usuario_id>/eliminar", methods=["POST"])
+@login_required
+@requiere_rol("Gerente", "Administrador")
+def eliminar_personal(usuario_id):
+    usuario = Usuario.query.get_or_404(usuario_id)
+    if usuario.es_cliente_externo():
+        abort(404)
+    if usuario.id == current_user.id:
+        flash("No puedes eliminar tu propia cuenta.", "warning")
+        return redirect(url_for("usuarios.listar_personal"))
+
+    tiene_verificaciones = Pedido.query.filter_by(verificado_por_id=usuario.id).first() is not None
+    if tiene_verificaciones:
+        flash(
+            f"'{usuario.nombre}' no se puede eliminar: tiene pedidos verificados a su nombre (queda en el historial). "
+            "Puedes desactivarlo en su lugar.",
+            "danger",
+        )
+        return redirect(url_for("usuarios.listar_personal"))
+
+    nombre = usuario.nombre
+    db.session.delete(usuario)
+    db.session.commit()
+    flash(f"Usuario '{nombre}' eliminado.", "info")
+    return redirect(url_for("usuarios.listar_personal"))

@@ -2,7 +2,7 @@
 {% block title %}Promociones masivas - NAHARA{% endblock %}
 {% block content %}
 <h2 class="mb-2">Promociones masivas</h2>
-<p class="text-muted">Selecciona varios productos y aplica un descuento porcentual a los 3 precios (Público, Minorista, Mayorista) al mismo tiempo.</p>
+<p class="text-muted">Selecciona varios productos y aplica un descuento porcentual a los 4 niveles de precio (Minorista, Mayorista, Franquicia, Asesora Libre) al mismo tiempo.</p>
 
 <form method="POST">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -26,7 +26,7 @@
                 <th>SKU</th>
                 <th>Nombre</th>
                 <th>Categoría</th>
-                <th>P. Público</th>
+                <th>Minorista</th>
                 <th>Estado actual</th>
             </tr>
         </thead>
@@ -39,10 +39,10 @@
                 <td>{{ p.categoria.nombre }}</td>
                 <td>
                     {% if p.en_oferta %}
-                        <span class="text-decoration-line-through text-muted small">{{ "%.2f"|format(p.precio_publico) }}</span>
-                        <strong>{{ "%.2f"|format(p.precio_publico_final) }}</strong>
+                        <span class="text-decoration-line-through text-muted small">Bs. {{ "%.2f"|format(p.precio_usd_por_nivel("Minorista") * tipo_cambio) }}</span>
+                        <strong>Bs. {{ "%.2f"|format(p.precio_final_usd("Minorista") * tipo_cambio) }}</strong>
                     {% else %}
-                        {{ "%.2f"|format(p.precio_publico) }}
+                        Bs. {{ "%.2f"|format(p.precio_usd_por_nivel("Minorista") * tipo_cambio) }}
                     {% endif %}
                 </td>
                 <td>
