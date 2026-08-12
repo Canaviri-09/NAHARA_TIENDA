@@ -4,6 +4,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Categorías</h2>
     <div>
+        <a href="{{ url_for('categorias.colores') }}" class="btn btn-outline-dark">Colores</a>
         <a href="{{ url_for('categorias.listar_subcategorias') }}" class="btn btn-outline-dark">Ver subcategorías</a>
         <a href="{{ url_for('categorias.nueva') }}" class="btn btn-nahara">Nueva categoría</a>
     </div>
@@ -23,6 +24,10 @@
             </td>
             <td class="text-end">
                 <a href="{{ url_for('categorias.editar', categoria_id=c.id) }}" class="btn btn-sm btn-outline-dark">Editar</a>
+                <form method="POST" action="{{ url_for('categorias.eliminar', categoria_id=c.id) }}" class="d-inline" onsubmit="return confirm('¿Eliminar {{ c.nombre }}?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                </form>
             </td>
         </tr>
         {% else %}

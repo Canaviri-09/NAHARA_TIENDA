@@ -3,7 +3,7 @@
 {% block content %}
 <div class="p-5 mb-4 bg-light rounded-3">
     <h1 class="display-6">Hola, {{ current_user.nombre }}</h1>
-    <p class="lead">Panel de control NAHARA</p>
+    <p class="lead">Panel de control NAHARA — Fase 2: autenticación y gestión de usuarios verificada.</p>
 </div>
 
 {% if contadores %}
@@ -68,8 +68,7 @@
         <div class="card shadow-sm">
             <div class="card-body">
                 <h5 class="card-title">Reportes de ventas</h5>
-                <p class="card-text text-muted">Filtra por fecha, producto, categoría y canal; exporta a PDF o Excel.
-                </p>
+                <p class="card-text text-muted">Filtra por fecha, producto, categoría y canal; exporta a PDF o Excel.</p>
                 <a href="{{ url_for('reportes.index') }}" class="btn btn-outline-dark">Ver reportes</a>
             </div>
         </div>
@@ -83,8 +82,7 @@
         <div class="card shadow-sm">
             <div class="card-body">
                 <h5 class="card-title">Personal interno</h5>
-                <p class="card-text text-muted">Alta, edición y activación de cuentas de Gerencia, Administración y
-                    Vendedores.</p>
+                <p class="card-text text-muted">Alta, edición y activación de cuentas de Gerencia, Administración y Vendedores.</p>
                 <a href="{{ url_for('usuarios.listar_personal') }}" class="btn btn-nahara">Gestionar personal</a>
             </div>
         </div>
@@ -102,9 +100,17 @@
         <div class="card shadow-sm">
             <div class="card-body">
                 <h5 class="card-title">Pago QR institucional</h5>
-                <p class="card-text text-muted">Configura el QR y los datos bancarios que verán los clientes en el
-                    checkout.</p>
+                <p class="card-text text-muted">Configura el QR y los datos bancarios que verán los clientes en el checkout.</p>
                 <a href="{{ url_for('tienda.configurar_pago_qr') }}" class="btn btn-outline-dark">Configurar</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mt-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Métodos de envío</h5>
+                <p class="card-text text-muted">Costo de envío terrestre/aéreo a nivel nacional.</p>
+                <a href="{{ url_for('tienda.metodos_envio') }}" class="btn btn-outline-dark">Configurar</a>
             </div>
         </div>
     </div>

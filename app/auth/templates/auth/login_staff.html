@@ -14,8 +14,7 @@
             <div class="mb-3">
                 {{ formulario.password.label(class="form-label") }}
                 {{ formulario.password(class="form-control") }}
-                {% for error in formulario.password.errors %}<div class="text-danger small">{{ error }}</div>{% endfor
-                %}
+                {% for error in formulario.password.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
             </div>
             {{ formulario.submit(class="btn btn-nahara w-100") }}
         </form>

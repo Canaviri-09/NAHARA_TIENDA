@@ -37,9 +37,11 @@ class RegistroClienteForm(FlaskForm):
     tipo_cliente = SelectField(
         "Tipo de cliente",
         choices=[
-            ("Publico", "Público (menudeo)"),
-            ("Minorista", "Minorista (B2B - cuarta docena)"),
-            ("Mayorista", "Mayorista (B2B - por docena)"),
+            ("Publico", "Público (precio Minorista)"),
+            ("Minorista", "Minorista (B2B)"),
+            ("Mayorista", "Mayorista (B2B)"),
+            ("Franquicia", "Franquicia (B2B)"),
+            ("Asesora Libre", "Asesora Libre (B2B)"),
         ],
         validators=[DataRequired()],
     )

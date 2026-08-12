@@ -9,8 +9,8 @@ ANCHO, ALTO = A4
 MARGEN = 15 * mm
 
 
-def _tipo_venta_legible(tipo_tarifa):
-    return {"Menudeo": "MENUDEO", "Minorista": "MINORISTA", "Docena": "POR DOCENA"}.get(tipo_tarifa, tipo_tarifa.upper())
+def _tipo_venta_legible(nivel_precio):
+    return nivel_precio.upper()
 
 
 def generar_pdf_nota_venta(pedido, empresa):
@@ -59,7 +59,7 @@ def generar_pdf_nota_venta(pedido, empresa):
     c.drawRightString(x_derecha, y_der, f"NRO.: {pedido.numero_nota}")
     y_der -= 12
     c.setFont("Helvetica", 8)
-    c.drawRightString(x_derecha, y_der, f"Tipo: {_tipo_venta_legible(pedido.tipo_tarifa)}")
+    c.drawRightString(x_derecha, y_der, f"Tipo: {_tipo_venta_legible(pedido.nivel_precio)}")
     y_der -= 12
     c.drawRightString(x_derecha, y_der, f"Pago: {pedido.metodo_pago.upper()}")
     y_der -= 12
@@ -68,8 +68,11 @@ def generar_pdf_nota_venta(pedido, empresa):
     y_der -= 12
     usuario_cajero = pedido.verificado_por.nombre if pedido.verificado_por else "-"
     c.drawRightString(x_derecha, y_der, f"Cajero: {usuario_cajero}")
+    y_der -= 12
+    if pedido.tipo_cambio_aplicado:
+        c.drawRightString(x_derecha, y_der, f"T. Cambio: {float(pedido.tipo_cambio_aplicado):.4f} Bs./USD")
 
-    y -= 60
+    y -= 72
 
     c.line(MARGEN, y, ANCHO - MARGEN, y)
     y -= 14
@@ -146,6 +149,11 @@ def generar_pdf_nota_venta(pedido, empresa):
     c.drawRightString(columnas_x["desc"] + 25, y, "DESCUENTO:")
     c.drawRightString(columnas_x["subtotal"] + 40, y, "0.00")
     y -= 12
+    if pedido.costo_envio and float(pedido.costo_envio) > 0:
+        etiqueta_envio = f"ENVÍO ({pedido.metodo_envio_nombre}):" if pedido.metodo_envio_nombre else "ENVÍO:"
+        c.drawRightString(columnas_x["desc"] + 25, y, etiqueta_envio)
+        c.drawRightString(columnas_x["subtotal"] + 40, y, f"{float(pedido.costo_envio):.2f}")
+        y -= 12
 
     c.setFont("Helvetica", 8)
     c.drawString(MARGEN, y, f"SON: {monto_a_letras_bolivianos(pedido.total)}")

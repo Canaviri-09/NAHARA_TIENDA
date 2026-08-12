@@ -7,12 +7,7 @@
 </div>
 <table class="table table-bordered bg-white align-middle">
     <thead class="table-dark">
-        <tr>
-            <th>Nombre</th>
-            <th>Categoría</th>
-            <th>Estado</th>
-            <th class="text-end">Acciones</th>
-        </tr>
+        <tr><th>Nombre</th><th>Categoría</th><th>Estado</th><th class="text-end">Acciones</th></tr>
     </thead>
     <tbody>
         {% for s in subcategorias %}
@@ -24,14 +19,15 @@
                 {% else %}<span class="badge bg-secondary">Inactiva</span>{% endif %}
             </td>
             <td class="text-end">
-                <a href="{{ url_for('categorias.editar_subcategoria', subcategoria_id=s.id) }}"
-                    class="btn btn-sm btn-outline-dark">Editar</a>
+                <a href="{{ url_for('categorias.editar_subcategoria', subcategoria_id=s.id) }}" class="btn btn-sm btn-outline-dark">Editar</a>
+                <form method="POST" action="{{ url_for('categorias.eliminar_subcategoria', subcategoria_id=s.id) }}" class="d-inline" onsubmit="return confirm('¿Eliminar {{ s.nombre }}?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                </form>
             </td>
         </tr>
         {% else %}
-        <tr>
-            <td colspan="4" class="text-center text-muted">No hay subcategorías registradas.</td>
-        </tr>
+        <tr><td colspan="4" class="text-center text-muted">No hay subcategorías registradas.</td></tr>
         {% endfor %}
     </tbody>
 </table>

@@ -150,7 +150,7 @@ def registro_cliente():
             return render_template("auth/registro_cliente.html", formulario=formulario)
 
         tipo = formulario.tipo_cliente.data  # Publico | Minorista | Mayorista
-        es_b2b = tipo in ("Minorista", "Mayorista")
+        es_b2b = tipo in ("Minorista", "Mayorista", "Franquicia", "Asesora Libre")
 
         if es_b2b and (not formulario.nit_ci.data or not formulario.razon_social.data):
             flash("Para cuentas Minorista/Mayorista el NIT/CI y la razón social son obligatorios.", "danger")

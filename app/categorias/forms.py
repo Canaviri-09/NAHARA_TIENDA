@@ -14,3 +14,8 @@ class SubcategoriaForm(FlaskForm):
     categoria_id = SelectField("Categoría", coerce=int, validators=[DataRequired()])
     activo = BooleanField("Activa", default=True)
     submit = SubmitField("Guardar")
+
+
+class ColorForm(FlaskForm):
+    nombre = StringField("Nombre del color", validators=[DataRequired(), Length(max=50)])
+    submit = SubmitField("Guardar")
