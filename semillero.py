@@ -11,6 +11,8 @@ ROLES_BASE = [
     ("Cliente Publico", False),
     ("Cliente Minorista", False),
     ("Cliente Mayorista", False),
+    ("Cliente Franquicia", False),
+    ("Cliente Asesora Libre", False),
 ]
 
 with app.app_context():
