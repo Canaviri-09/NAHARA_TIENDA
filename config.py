@@ -37,10 +37,7 @@ class Config:
 
     # Regla de negocio: umbral de unidades del mismo producto en el carrito
     # para activar automáticamente el precio Mayorista / Por Docena.
-    # Umbrales de precio por cantidad del MISMO producto en el carrito,
-    # aplican a cualquier comprador (público o B2B) por igual:
-    #   1-2 unidades  -> Precio Público (Menudeo)
-    #   3-11 unidades -> Precio Minorista
-    #   12+ unidades  -> Precio Mayorista / Por Docena
-    UMBRAL_PRECIO_MINORISTA = 3
-    UMBRAL_PRECIO_DOCENA = 12
+    # Umbral de cantidad del MISMO producto en el carrito para pasar de
+    # Precio por Unidad a Precio Mayorista. Aplica a cualquier comprador
+    # (público o B2B) por igual.
+    UMBRAL_PRECIO_MAYORISTA = 3

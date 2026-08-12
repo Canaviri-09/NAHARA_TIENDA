@@ -71,6 +71,16 @@ def create_app(config_class=Config):
         )
         return {"categorias_menu": categorias}
 
+    @app.context_processor
+    def inyectar_empresa_config():
+        from app.models_all import ConfiguracionEmpresa
+        return {"empresa_config": ConfiguracionEmpresa.query.first()}
+
+    @app.context_processor
+    def inyectar_tipo_cambio():
+        from app.tienda.utils_moneda import obtener_tipo_cambio
+        return {"tipo_cambio_actual": obtener_tipo_cambio}
+
     def current_user_seguro():
         from flask_login import current_user
         return current_user

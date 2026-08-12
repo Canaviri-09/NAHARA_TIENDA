@@ -7,7 +7,9 @@ class Rol(db.Model):
     """Roles del sistema.
 
     Personal interno: Gerente, Administrador, Empleado/Vendedor.
-    Clientes externos: Cliente Publico, Cliente Minorista, Cliente Mayorista.
+    Clientes externos: Cliente Publico, Cliente Minorista, Cliente Mayorista,
+    Cliente Franquicia, Cliente Asesora Libre (estos últimos 4 requieren
+    aprobación de Gerencia, igual que Minorista/Mayorista).
     Se usa una sola tabla de roles para simplificar `role_required` en ambos
     tipos de usuario (autenticación unificada vía Flask-Login).
     """
@@ -113,21 +115,43 @@ class Subcategoria(db.Model):
 DIAS_PRODUCTO_NUEVO = 30  # cuántos días después de creado un producto se considera "Nuevo"
 
 
+NIVELES_PRECIO = ["Minorista", "Mayorista", "Franquicia", "Asesora Libre"]  # de más caro a más barato
+
+
 class Producto(db.Model):
     __tablename__ = "productos"
 
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(150), nullable=False)
-    sku = db.Column(db.String(50), unique=True, nullable=False, index=True)
+    sku = db.Column(db.String(50), unique=True, nullable=False, index=True)  # se genera solo, no lo escribe el usuario
     descripcion = db.Column(db.Text, nullable=True)
 
     categoria_id = db.Column(db.Integer, db.ForeignKey("categorias.id"), nullable=False)
     subcategoria_id = db.Column(db.Integer, db.ForeignKey("subcategorias.id"), nullable=True)
+    color_id = db.Column(db.Integer, db.ForeignKey("colores.id"), nullable=True)  # opcional
 
-    # Matriz de precios multinivel (Bs.)
-    precio_publico = db.Column(db.Numeric(10, 2), nullable=False)
-    precio_minorista = db.Column(db.Numeric(10, 2), nullable=False)
-    precio_mayorista = db.Column(db.Numeric(10, 2), nullable=False)
+    # TODO funciona internamente en USD; el Bs. se calcula al vuelo con el
+    # tipo de cambio del día (ConfiguracionEmpresa.tipo_cambio_usd). El
+    # Gerente puede escribir en USD o en Bs. desde el formulario — el otro
+    # valor se recalcula solo (ver JS del formulario), pero lo que se
+    # guarda en la base de datos siempre es el monto en USD.
+    precio_compra_usd = db.Column(db.Numeric(10, 2), nullable=False, default=0)  # SOLO Gerente/Administrador
+    tipo_cambio_al_comprar = db.Column(db.Numeric(10, 4), nullable=True)  # tipo de cambio vigente cuando se fijó el costo
+    fecha_actualizacion_compra = db.Column(db.DateTime, nullable=True)
+
+    # Matriz de 4 precios de venta en USD (de más caro a más barato):
+    # Minorista, Mayorista, Franquicia, Asesora Libre.
+    precio_minorista_usd = db.Column(db.Numeric(10, 2), nullable=False, default=0)
+    precio_mayorista_usd = db.Column(db.Numeric(10, 2), nullable=False, default=0)
+    precio_franquicia_usd = db.Column(db.Numeric(10, 2), nullable=False, default=0)
+    precio_asesora_libre_usd = db.Column(db.Numeric(10, 2), nullable=False, default=0)
+
+    # Cada nivel se puede habilitar/deshabilitar por producto (ej. un
+    # producto que no se vende al detalle, solo por mayor).
+    minorista_habilitado = db.Column(db.Boolean, default=True, nullable=False)
+    mayorista_habilitado = db.Column(db.Boolean, default=True, nullable=False)
+    franquicia_habilitado = db.Column(db.Boolean, default=True, nullable=False)
+    asesora_libre_habilitado = db.Column(db.Boolean, default=True, nullable=False)
 
     # Stock único del producto (ya no se desglosa por talla)
     stock = db.Column(db.Integer, default=0, nullable=False)
@@ -155,6 +179,7 @@ class Producto(db.Model):
         "ProductoImagen", backref="producto", lazy=True, cascade="all, delete-orphan",
         order_by="ProductoImagen.orden",
     )
+    color = db.relationship("Color", lazy=True)
 
     @property
     def es_nuevo(self):
@@ -170,26 +195,47 @@ class Producto(db.Model):
                 return img
         return self.imagenes[0] if self.imagenes else None
 
-    def _precio_final(self, precio_base):
+    def precio_usd_por_nivel(self, nivel):
+        valor = {
+            "Minorista": self.precio_minorista_usd,
+            "Mayorista": self.precio_mayorista_usd,
+            "Franquicia": self.precio_franquicia_usd,
+            "Asesora Libre": self.precio_asesora_libre_usd,
+        }[nivel]
+        return float(valor)
+
+    def nivel_habilitado(self, nivel):
+        return {
+            "Minorista": self.minorista_habilitado,
+            "Mayorista": self.mayorista_habilitado,
+            "Franquicia": self.franquicia_habilitado,
+            "Asesora Libre": self.asesora_libre_habilitado,
+        }[nivel]
+
+    def _aplicar_oferta_usd(self, precio_usd):
         if self.en_oferta and self.porcentaje_descuento:
             factor = (100 - float(self.porcentaje_descuento)) / 100
-            return round(float(precio_base) * factor, 2)
-        return float(precio_base)
+            return round(float(precio_usd) * factor, 2)
+        return float(precio_usd)
 
-    @property
-    def precio_publico_final(self):
-        return self._precio_final(self.precio_publico)
-
-    @property
-    def precio_minorista_final(self):
-        return self._precio_final(self.precio_minorista)
-
-    @property
-    def precio_mayorista_final(self):
-        return self._precio_final(self.precio_mayorista)
+    def precio_final_usd(self, nivel):
+        return self._aplicar_oferta_usd(self.precio_usd_por_nivel(nivel))
 
     def __repr__(self):
         return f"<Producto {self.sku} - {self.nombre}>"
+
+
+class Color(db.Model):
+    """Catálogo de colores/variantes que el Gerente/Empleado define una
+    vez y reutiliza al crear productos (evita duplicados como "Rojo" /
+    "rojo" / "Colorado" escritos a mano)."""
+    __tablename__ = "colores"
+
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(50), unique=True, nullable=False)
+
+    def __repr__(self):
+        return f"<Color {self.nombre}>"
 
 
 class ProductoImagen(db.Model):
@@ -221,14 +267,17 @@ class ConfiguracionPagoQR(db.Model):
 # ---------------------------------------------------------------------------
 # Pedidos y checkout (Fase 4)
 # ---------------------------------------------------------------------------
-TIPOS_TARIFA = ["Menudeo", "Minorista", "Docena"]
+# NIVELES_PRECIO ya está definido junto a la clase Producto (más arriba)
 ESTADOS_PEDIDO = ["Pendiente de verificación", "Pagado", "En preparación", "Entregado", "Rechazado"]
 ENTREGAS = ["Envio", "Retiro en tienda"]
 
 
 class ConfiguracionEmpresa(db.Model):
     """Datos institucionales usados en el encabezado de la Nota de Venta
-    (formato AUDY): nombre comercial, dirección, NIT y celular."""
+    (formato AUDY): nombre comercial, dirección, NIT y celular. También
+    guarda la configuración financiera: márgenes de ganancia por defecto
+    (para autocompletar precios al crear un producto) y el tipo de cambio
+    del dólar del día."""
     __tablename__ = "configuracion_empresa"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -238,6 +287,31 @@ class ConfiguracionEmpresa(db.Model):
     celular = db.Column(db.String(30), nullable=True)
     ciudad = db.Column(db.String(100), nullable=True)
 
+    # Márgenes por defecto para autocompletar precios de venta a partir
+    # del Precio de Compra al crear un producto (editable por producto).
+    margen_ganancia_unidad = db.Column(db.Numeric(10, 2), default=55, nullable=False)
+    margen_ganancia_mayorista = db.Column(db.Numeric(10, 2), default=12.5, nullable=False)
+
+    # Tipo de cambio del dólar del día (referencia; ver nota en el panel
+    # de configuración sobre cómo se usa exactamente).
+    tipo_cambio_usd = db.Column(db.Numeric(10, 4), nullable=True)
+    tipo_cambio_actualizado = db.Column(db.DateTime, nullable=True)
+
+
+class MetodoEnvio(db.Model):
+    """Métodos de envío a nivel nacional (terrestre, aéreo, etc.) con su
+    costo, definidos por el Gerente/Administrador. El costo se actualiza
+    manualmente según lo que cobren las empresas de transporte."""
+    __tablename__ = "metodos_envio"
+
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)  # ej. "Courier Local", "Envío a Terminal"
+    costo = db.Column(db.Numeric(10, 2), nullable=False, default=0)
+    activo = db.Column(db.Boolean, default=True, nullable=False)
+
+    def __repr__(self):
+        return f"<MetodoEnvio {self.nombre} - Bs.{self.costo}>"
+
 
 class Pedido(db.Model):
     __tablename__ = "pedidos"
@@ -245,13 +319,20 @@ class Pedido(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), nullable=False)
 
-    tipo_tarifa = db.Column(db.String(20), nullable=False)  # Menudeo | Minorista | Docena
+    nivel_precio = db.Column(db.String(20), nullable=False)  # Minorista | Mayorista | Franquicia | Asesora Libre
     tipo_entrega = db.Column(db.String(20), nullable=False, default="Retiro en tienda")
-    direccion_envio = db.Column(db.String(255), nullable=True)
+    direccion_envio = db.Column(db.String(255), nullable=True)  # texto libre (ciudad/dirección escrita)
+    metodo_envio_nombre = db.Column(db.String(100), nullable=True)  # copia histórica del método elegido
+    costo_envio = db.Column(db.Numeric(10, 2), default=0, nullable=False)
     nota = db.Column(db.Text, nullable=True)
 
+    # Tipo de cambio USD->Bs. vigente al momento de la venta (para que el
+    # historial de Reportes/Nota de Venta quede fijo aunque el tipo de
+    # cambio cambie después).
+    tipo_cambio_aplicado = db.Column(db.Numeric(10, 4), nullable=True)
+
     subtotal = db.Column(db.Numeric(10, 2), nullable=False)
-    total = db.Column(db.Numeric(10, 2), nullable=False)
+    total = db.Column(db.Numeric(10, 2), nullable=False)  # subtotal + costo_envio
 
     comprobante_pago = db.Column(db.String(255), nullable=True)
     metodo_pago = db.Column(db.String(30), default="QR/Transferencia", nullable=False)
@@ -280,8 +361,10 @@ class ItemPedido(db.Model):
 
     nombre_producto = db.Column(db.String(150), nullable=False)  # copia histórica
     cantidad = db.Column(db.Integer, nullable=False)
-    precio_unitario = db.Column(db.Numeric(10, 2), nullable=False)
+    precio_unitario = db.Column(db.Numeric(10, 2), nullable=False)  # en Bs., ya convertido
+    precio_unitario_usd = db.Column(db.Numeric(10, 2), nullable=True)  # copia histórica en USD
+    precio_compra_unitario_usd = db.Column(db.Numeric(10, 2), nullable=True)  # copia histórica del costo en USD (para reportes de ganancia)
     subtotal = db.Column(db.Numeric(10, 2), nullable=False)
-    tipo_tarifa = db.Column(db.String(20), nullable=False, default="Menudeo")  # Menudeo | Minorista | Docena
+    nivel_precio = db.Column(db.String(20), nullable=False, default="Minorista")  # Minorista | Mayorista | Franquicia | Asesora Libre
 
     producto = db.relationship("Producto", lazy=True)
