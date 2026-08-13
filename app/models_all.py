@@ -289,7 +289,13 @@ class ConfiguracionEmpresa(db.Model):
 
     # Márgenes por defecto para autocompletar precios de venta a partir
     # del Precio de Compra al crear un producto (editable por producto).
-    margen_ganancia_unidad = db.Column(db.Numeric(10, 2), default=55, nullable=False)
+    
+    # ###########################################################----------------------------------
+    # margen_ganancia_unidad = db.Column(db.Numeric(10, 2), default=55, nullable=False)
+
+    # Cambia esto temporalmente para permitir la migración suave:
+    margen_ganancia_unidad = db.Column(db.Numeric(10, 2), nullable=False, default=0.00, server_default="0.00")
+    
     margen_ganancia_mayorista = db.Column(db.Numeric(10, 2), default=12.5, nullable=False)
 
     # Tipo de cambio del dólar del día (referencia; ver nota en el panel
