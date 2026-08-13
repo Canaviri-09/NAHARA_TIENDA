@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_wtf import CSRFProtect
 from config import Config
-from app.extensions import db, bcrypt, login_manager
+from app.extensions import db, bcrypt, login_manager, migrate # <-- Importar migrate
 
 csrf = CSRFProtect()
 
@@ -17,6 +17,7 @@ def create_app(config_class=Config):
     login_manager.login_view = "auth.portal"
     login_manager.login_message = "Debes iniciar sesión para acceder a esta página."
     login_manager.login_message_category = "warning"
+    migrate.init_app(app, db)  # <-- IMPORTANTE: Esta línea activa el comando 'flask db'
 
     from app.models_all import Usuario
 
@@ -86,3 +87,5 @@ def create_app(config_class=Config):
         return current_user
 
     return app
+
+
