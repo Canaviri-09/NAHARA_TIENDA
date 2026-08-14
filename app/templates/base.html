@@ -1,30 +1,96 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}NAHARA{% endblock %}</title>
-    <!-- Bootstrap alojado localmente (no depende de un CDN externo, que puede estar bloqueado en algunas redes) -->
+    <!-- Bootstrap alojado localmente -->
     <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
+            /* COLOR: Paleta general de colores */
+            --nahara-rosado: #e58c9f;
+            /* Rosado principal */
+            --nahara-plomo-claro: #e2e6ea;
+            /* Plomo claro de la barra del mega-menú */
             --nahara-negro: #111111;
-            --nahara-amarillo: #f4ca00;
+            /* Negro para textos principales */
         }
-        body { font-family: 'Montserrat', sans-serif; background-color: #f8f8f8; }
-        .navbar-nahara { background-color: var(--nahara-negro); }
-        .navbar-nahara .navbar-brand { color: var(--nahara-amarillo); font-weight: 700; letter-spacing: 1px; }
-        .navbar-nahara .nav-link { color: #fff; }
-        .navbar-nahara .nav-link:hover { color: var(--nahara-amarillo); }
-        .btn-nahara { background-color: var(--nahara-amarillo); color: #111; border: none; font-weight: 600; }
-        .btn-nahara:hover { background-color: #d9b100; color: #111; }
-        .icono-cuenta { color: #fff; display: inline-flex; align-items: center; padding: 4px 8px; }
-        .icono-cuenta:hover { color: var(--nahara-amarillo); }
 
-        /* --- Footer "Síguenos" con efecto hover de colores por red social --- */
-        .footer-nahara { background-color: var(--nahara-negro); color: #fff; }
-        .footer-titulo { color: #fff; letter-spacing: 2px; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #ffffff;
+        }
+
+        /* =========================================================
+           1. BARRA DE NAVEGACIÓN SUPERIOR (DONDE DICE NAHARA)
+           ========================================================= */
+        /* COLOR: Fondo del panel de arriba cambiado a ROSADO */
+        .navbar-nahara {
+            background-color: var(--nahara-rosado);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        /* COLOR: Texto del logo NAHARA cambiado a NEGRO */
+        .navbar-nahara .navbar-brand {
+            color: var(--nahara-negro);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* COLOR: Enlaces del panel de arriba (Panel, Pedidos, etc.) */
+        .navbar-nahara .nav-link {
+            color: var(--nahara-negro);
+        }
+
+        .navbar-nahara .nav-link:hover {
+            color: #ffffff;
+        }
+
+        /* COLOR: Botones en la barra superior */
+        .btn-nahara {
+            background-color: var(--nahara-negro);
+            color: #fff;
+            border: none;
+            font-weight: 600;
+        }
+
+        .btn-nahara:hover {
+            background-color: #333333;
+            color: #fff;
+        }
+
+        /* COLOR: Ícono de usuario/cuenta */
+        .icono-cuenta {
+            color: var(--nahara-negro);
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+        }
+
+        .icono-cuenta:hover {
+            color: #ffffff;
+        }
+
+
+        /* =========================================================
+           2. SECCIÓN SÍGUENOS / FOOTER (ABAJO)
+           ========================================================= */
+        /* COLOR: Fondo del Footer cambiado de rosado a PLOMO CLARO */
+        .footer-nahara {
+            background-color: var(--nahara-plomo-claro);
+            color: var(--nahara-negro);
+        }
+
+        /* COLOR: Título "SÍGUENOS" */
+        .footer-titulo {
+            color: var(--nahara-negro);
+            letter-spacing: 2px;
+        }
+
+        /* COLOR: Las 4 Tarjetas de Redes Sociales (Estado normal) */
         .social-card {
             display: flex;
             align-items: center;
@@ -32,198 +98,504 @@
             gap: 14px;
             padding: 18px 24px;
             border-radius: 14px;
-            background-color: #161616;
+            background-color: #d1d5db;
+            /* COLOR: Plomo medio/claro para los cuadros de abajo */
+            color: var(--nahara-negro);
+            text-decoration: none;
+            border: 1px solid #bc1c8;
+            transition: background 0.35s ease, transform 0.2s ease, color 0.35s ease;
+        }
+
+        /* Textos de los cuadros de redes sociales */
+        .social-card .social-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #444444;
+        }
+
+        .social-card .social-nombre {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--nahara-negro);
+        }
+
+        .social-card .social-flecha {
+            font-size: 1.2rem;
+            color: var(--nahara-negro);
+        }
+
+        .social-card .social-icon {
+            display: flex;
+            color: var(--nahara-negro);
+        }
+
+        /* Efecto al pasar el cursor (hover) por los cuadros */
+        .social-card:hover {
+            transform: translateY(-2px);
+            color: #ffffff;
+        }
+
+        .social-card:hover .social-label,
+        .social-card:hover .social-nombre,
+        .social-card:hover .social-flecha,
+        .social-card:hover .social-icon {
+            color: #ffffff;
+        }
+
+        /* COLOR HOVER: Efectos de gradiente al acercar el ratón a cada red social */
+        .social-tiktok:hover {
+            background: linear-gradient(90deg, #25F4EE 0%, #6f3ac0 55%, #FE2C55 100%);
+        }
+
+        .social-instagram:hover {
+            background: linear-gradient(90deg, #833AB4 0%, #FD1D1D 55%, #FCAF45 100%);
+        }
+
+        .social-facebook:hover {
+            background: linear-gradient(90deg, #1877F2 0%, #4E9BF5 100%);
+        }
+
+        .social-grupos:hover {
+            background: linear-gradient(90deg, #333333 0%, #555555 100%);
+            color: #ffffff;
+        }
+
+
+        /* =========================================================
+           3. MENÚ DE NAVEGACIÓN Y COMPONENTES
+           ========================================================= */
+        /* COLOR: Barra donde dice NOVEDADES, MÁS VENDIDOS, ETC. */
+        .mega-nav {
+            background-color: var(--nahara-plomo-claro);
+        }
+
+        .mega-nav .mega-lista {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+            flex-wrap: wrap;
+        }
+
+        .mega-item {
+            position: relative;
+        }
+
+        .mega-item>a,
+        .mega-item>span {
+            display: block;
+            padding: 10px 16px;
+            color: #111;
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 0.85rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .mega-item>a:hover,
+        .mega-item:hover>span {
+            background-color: rgba(0, 0, 0, 0.08);
+        }
+
+        .mega-panel {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #fff;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+            min-width: 240px;
+            padding: 14px 0;
+            z-index: 1050;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .mega-item:hover .mega-panel {
+            display: block;
+        }
+
+        .mega-panel a {
+            display: block;
+            padding: 8px 20px;
+            color: #111;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .mega-panel a:hover {
+            background-color: #f8f8f8;
+            color: var(--nahara-rosado);
+            font-weight: 700;
+        }
+
+        .mega-panel .mega-panel-titulo {
+            padding: 4px 20px 8px;
+            font-size: 0.75rem;
+            color: #999;
+            text-transform: uppercase;
+        }
+
+        /* COLOR: Pie final y derechos de autor */
+        .footer-linea-final {
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            color: #555555;
+        }
+
+        .footer-link-legal {
+            color: #444444;
+            text-decoration: none;
+        }
+
+        .footer-link-legal:hover {
+            color: var(--nahara-rosado);
+        }
+
+        /* --- Menú lateral (offcanvas) --- */
+        .btn-hamburguesa {
+            background: transparent;
+            border: none;
+            color: #111111;
+            padding: 4px 8px;
+        }
+
+        .btn-hamburguesa:hover {
+            color: var(--nahara-rosado);
+        }
+
+        .menu-lateral {
+            background-color: var(--nahara-rosado);
+            color: #fff;
+            width: 300px;
+        }
+
+        .menu-lateral-link {
+            display: block;
+            padding: 12px 4px;
             color: #fff;
             text-decoration: none;
-            transition: background 0.35s ease, transform 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            font-weight: 500;
         }
-        .social-card:hover { color: #fff; transform: translateY(-2px); }
-        .social-texto { display: flex; flex-direction: column; flex-grow: 1; }
-        .social-label { font-size: 0.75rem; text-transform: uppercase; color: #aaa; }
-        .social-nombre { font-weight: 700; font-size: 1.05rem; }
-        .social-card:hover .social-label { color: rgba(255,255,255,0.85); }
-        .social-icon { display: flex; }
-        .social-flecha { font-size: 1.2rem; color: var(--nahara-amarillo); }
 
-        /* Colores de marca al pasar el mouse (hover) sobre cada tarjeta */
-        .social-tiktok:hover { background: linear-gradient(90deg, #25F4EE 0%, #6f3ac0 55%, #FE2C55 100%); }
-        .social-instagram:hover { background: linear-gradient(90deg, #833AB4 0%, #FD1D1D 55%, #FCAF45 100%); }
-        .social-facebook:hover { background: linear-gradient(90deg, #1877F2 0%, #4E9BF5 100%); }
-        .social-grupos:hover { background: linear-gradient(90deg, #f4ca00 0%, #ffe066 100%); color: #111; }
-        .social-grupos:hover .social-label,
-        .social-grupos:hover .social-nombre,
-        .social-grupos:hover .social-flecha { color: #111; }
-
-        /* --- Menú lateral (offcanvas de categorías), estilo referencia del cliente --- */
-        .btn-hamburguesa { background: transparent; border: none; color: #fff; padding: 4px 8px; }
-        .btn-hamburguesa:hover { color: var(--nahara-amarillo); }
-        .menu-lateral { background-color: var(--nahara-negro); color: #fff; width: 300px; }
-        .menu-lateral-link {
-            display: block; padding: 12px 4px; color: #fff; text-decoration: none;
-            border-bottom: 1px solid rgba(255,255,255,0.08); font-weight: 500;
+        .menu-lateral-link:hover {
+            color: #ffffff;
+            text-decoration: underline;
         }
-        .menu-lateral-link:hover { color: var(--nahara-amarillo); }
-        .menu-lateral-sublink { display: block; padding: 8px 4px 8px 14px; color: #ccc; text-decoration: none; font-size: 0.9rem; }
-        .menu-lateral-sublink:hover { color: var(--nahara-amarillo); }
+
+        .menu-lateral-sublink {
+            display: block;
+            padding: 8px 4px 8px 14px;
+            color: #f0f0f0;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .menu-lateral-sublink:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
         .menu-social-icono {
-            width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; background-color: #222; color: #fff; transition: background 0.3s ease;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #222;
+            color: #fff;
+            transition: background 0.3s ease;
         }
-        .menu-social-icono.mi-tiktok:hover { background: linear-gradient(90deg, #25F4EE 0%, #6f3ac0 55%, #FE2C55 100%); }
-        .menu-social-icono.mi-instagram:hover { background: linear-gradient(90deg, #833AB4 0%, #FD1D1D 55%, #FCAF45 100%); }
-        .menu-social-icono.mi-facebook:hover { background-color: #1877F2; }
 
-        /* --- Badges combinables de las tarjetas de producto --- */
-        .badges-producto { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
-        .badge-producto { font-size: 0.7rem; font-weight: 700; padding: 3px 9px; border-radius: 20px; color: #fff; text-transform: uppercase; }
-        .badge-nuevo { background-color: var(--nahara-amarillo); color: #111; }
-        .badge-destacado { background-color: var(--nahara-negro); }
-        .badge-oferta { background-color: #e63946; }
-        .badge-mas-vendido { background-color: #2a9d8f; }
-        .badge-inactivo { background-color: #888; }
-        .tarjeta-producto { transition: transform 0.2s ease; }
-        .tarjeta-producto:hover { transform: translateY(-3px); }
-
-        /* --- Mega-menú de categorías (hover en escritorio) --- */
-        .mega-nav { background-color: var(--nahara-amarillo); }
-        .mega-nav .mega-lista { list-style: none; display: flex; margin: 0; padding: 0; flex-wrap: wrap; }
-        .mega-item { position: relative; }
-        .mega-item > a, .mega-item > span {
-            display: block; padding: 10px 16px; color: #111; font-weight: 700;
-            text-decoration: none; font-size: 0.85rem; cursor: pointer; white-space: nowrap;
+        .menu-social-icono.mi-tiktok:hover {
+            background: linear-gradient(90deg, #25F4EE 0%, #6f3ac0 55%, #FE2C55 100%);
         }
-        .mega-item > a:hover, .mega-item:hover > span { background-color: rgba(0,0,0,0.08); }
-        .mega-panel {
-            display: none; position: absolute; top: 100%; left: 0; background: #fff;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.18); min-width: 240px; padding: 14px 0;
-            z-index: 1050; border-radius: 0 0 10px 10px;
-        }
-        .mega-item:hover .mega-panel { display: block; }
-        .mega-panel a { display: block; padding: 8px 20px; color: #111; text-decoration: none; font-size: 0.85rem; }
-        .mega-panel a:hover { background-color: var(--light-bg, #f8f8f8); color: var(--nahara-negro); font-weight: 700; }
-        .mega-panel .mega-panel-titulo { padding: 4px 20px 8px; font-size: 0.75rem; color: #999; text-transform: uppercase; }
-        .footer-linea-final { border-top: 1px solid rgba(255,255,255,0.1); }
-        .footer-link-legal { color: #ccc; text-decoration: none; }
-        .footer-link-legal:hover { color: var(--nahara-amarillo); }
 
-        /* --- Recuadros de categoría en la portada --- */
-        .categoria-tile { position: relative; border-radius: 10px; overflow: hidden; height: 180px; background-color: #ddd; }
-        .categoria-tile img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s ease; }
-        .categoria-tile:hover img { transform: scale(1.06); }
+        .menu-social-icono.mi-instagram:hover {
+            background: linear-gradient(90deg, #833AB4 0%, #FD1D1D 55%, #FCAF45 100%);
+        }
+
+        .menu-social-icono.mi-facebook:hover {
+            background-color: #1877F2;
+        }
+
+        /* --- Badges de tarjetas --- */
+        .badges-producto {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: flex-start;
+        }
+
+        .badge-producto {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 20px;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        .badge-nuevo {
+            background-color: var(--nahara-plomo-claro);
+            color: #111;
+        }
+
+        .badge-destacado {
+            background-color: var(--nahara-rosado);
+        }
+
+        .badge-oferta {
+            background-color: #e63946;
+        }
+
+        .badge-mas-vendido {
+            background-color: #2a9d8f;
+        }
+
+        .badge-inactivo {
+            background-color: #888;
+        }
+
+        .tarjeta-producto {
+            transition: transform 0.2s ease;
+        }
+
+        .tarjeta-producto:hover {
+            transform: translateY(-3px);
+        }
+
+        /* --- Categorías en portada --- */
+        .categoria-tile {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 180px;
+            background-color: #ddd;
+        }
+
+        .categoria-tile img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.35s ease;
+        }
+
+        .categoria-tile:hover img {
+            transform: scale(1.06);
+        }
+
         .categoria-tile-sinfoto {
-            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-            background-color: var(--nahara-negro); color: #fff; font-weight: 700; text-align: center; padding: 10px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--nahara-rosado);
+            color: #fff;
+            font-weight: 700;
+            text-align: center;
+            padding: 10px;
         }
+
         .categoria-tile-overlay {
-            position: absolute; left: 0; bottom: 0; width: 100%; padding: 10px 14px;
-            background: linear-gradient(0deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 100%); color: #fff;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            padding: 10px 14px;
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 100%);
+            color: #fff;
         }
-        .categoria-tile-nombre { font-weight: 800; text-transform: uppercase; font-size: 1rem; }
-        .categoria-tile-explorar { font-size: 0.72rem; color: var(--nahara-amarillo); }
 
-        /* --- Opciones de cuenta del navbar: separadas por línea vertical --- */
-        .opciones-cuenta { display: flex; align-items: center; }
-        .opciones-cuenta > a, .opciones-cuenta > span {
-            color: #fff; padding: 0 12px; text-decoration: none; font-size: 0.85rem;
-            border-right: 1px solid rgba(255,255,255,0.25); white-space: nowrap;
+        .categoria-tile-nombre {
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 1rem;
         }
-        .opciones-cuenta > a:last-child, .opciones-cuenta > span:last-child { border-right: none; padding-right: 0; }
-        .opciones-cuenta > a:hover { color: var(--nahara-amarillo); }
 
-        /* --- Buscador estilo píldora blanca con micrófono --- */
-        .buscador-navbar { max-width: 480px; width: 100%; }
+        .categoria-tile-explorar {
+            font-size: 0.72rem;
+            color: var(--nahara-plomo-claro);
+        }
+
+        /* --- Opciones de cuenta --- */
+        .opciones-cuenta {
+            display: flex;
+            align-items: center;
+        }
+
+        .opciones-cuenta>a,
+        .opciones-cuenta>span {
+            color: #111111;
+            padding: 0 12px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-right: 1px solid rgba(0, 0, 0, 0.15);
+            white-space: nowrap;
+        }
+
+        .opciones-cuenta>a:last-child,
+        .opciones-cuenta>span:last-child {
+            border-right: none;
+            padding-right: 0;
+        }
+
+        .opciones-cuenta>a:hover {
+            color: #ffffff;
+        }
+
+        /* --- Buscador estilo píldora --- */
+        .buscador-navbar {
+            max-width: 480px;
+            width: 100%;
+        }
+
         .buscador-navbar .input-wrap {
-            display: flex; align-items: center; background-color: #fff; border-radius: 20px;
-            padding: 0 6px 0 16px; width: 100%;
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 0 6px 0 16px;
+            width: 100%;
+            border: 1px solid #dcdcdc;
         }
+
         .buscador-navbar input {
-            border: none; background: transparent; padding: 9px 4px; flex-grow: 1; outline: none; font-size: 0.9rem;
+            border: none;
+            background: transparent;
+            padding: 9px 4px;
+            flex-grow: 1;
+            outline: none;
+            font-size: 0.9rem;
         }
-        .buscador-navbar .btn-mic, .buscador-navbar .btn-buscar {
-            background: transparent; border: none; color: #666; padding: 6px 8px; display: flex; align-items: center; cursor: pointer;
+
+        .buscador-navbar .btn-mic,
+        .buscador-navbar .btn-buscar {
+            background: transparent;
+            border: none;
+            color: #666;
+            padding: 6px 8px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
         }
-        .buscador-navbar .btn-mic:hover, .buscador-navbar .btn-buscar:hover { color: var(--nahara-negro); }
-        .buscador-navbar .btn-mic.escuchando { color: #e63946; animation: pulso-mic 1s infinite; }
-        @keyframes pulso-mic { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .buscador-navbar .btn-mic:hover,
+        .buscador-navbar .btn-buscar:hover {
+            color: var(--nahara-rosado);
+        }
+
+        .buscador-navbar .btn-mic.escuchando {
+            color: #e63946;
+            animation: pulso-mic 1s infinite;
+        }
+
+        @keyframes pulso-mic {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
     </style>
     {% block head_extra %}{% endblock %}
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-nahara">
         <div class="container">
-            <button class="btn-hamburguesa d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral" aria-label="Menú">
+            <button class="btn-hamburguesa d-lg-none" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#menuLateral" aria-label="Menú">
                 <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true">
-                    <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
+                    <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
                 </svg>
             </button>
             <a class="navbar-brand me-3" href="{{ url_for('tienda.catalogo') }}">NAHARA</a>
 
-            <!-- Buscador de productos: envía a tienda.catalogo con ?q=texto. El
-                 micrófono usa la Web Speech API del navegador (ver script al
-                 final del body) para dictar la búsqueda por voz. -->
-            <form method="GET" action="{{ url_for('tienda.catalogo') }}" class="buscador-navbar d-none d-md-flex mx-auto">
+            <form method="GET" action="{{ url_for('tienda.catalogo') }}"
+                class="buscador-navbar d-none d-md-flex mx-auto">
                 <div class="input-wrap">
-                    <input type="text" name="q" class="buscador-input" placeholder="Buscar productos, marcas..." value="{{ request.args.get('q', '') }}">
+                    <input type="text" name="q" class="buscador-input" placeholder="Buscar productos, marcas..."
+                        value="{{ request.args.get('q', '') }}">
                     <button type="button" class="btn-mic" title="Buscar por voz">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                            <line x1="12" y1="19" x2="12" y2="23" />
+                        </svg>
                     </button>
                     <button type="submit" class="btn-buscar">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="11" cy="11" r="7" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
                     </button>
                 </div>
             </form>
 
             <div class="d-flex ms-auto align-items-center">
-                <button class="btn btn-outline-light btn-sm me-3 d-flex align-items-center gap-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#miniCarrito">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                <button class="btn btn-outline-dark btn-sm me-3 d-flex align-items-center gap-1" type="button"
+                    data-bs-toggle="offcanvas" data-bs-target="#miniCarrito">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1" />
+                        <circle cx="20" cy="21" r="1" />
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                    </svg>
                     Carrito ({{ cantidad_carrito() }})
                 </button>
                 {% if current_user.is_authenticated %}
-                    <div class="opciones-cuenta">
-                        {% if current_user.rol.es_personal_interno %}
-                            <a href="{{ url_for('dashboard.index') }}">Panel</a>
-                            <a href="{{ url_for('pedidos.listar') }}">Pedidos</a>
-                        {% else %}
-                            <a href="{{ url_for('pedidos.mis_pedidos') }}">Mis pedidos</a>
-                        {% endif %}
-                        <span>{{ current_user.nombre }} ({{ current_user.rol.nombre }})</span>
-                        <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
-                    </div>
+                <div class="opciones-cuenta">
+                    {% if current_user.rol.es_personal_interno %}
+                    <a href="{{ url_for('dashboard.index') }}">Panel</a>
+                    <a href="{{ url_for('pedidos.listar') }}">Pedidos</a>
+                    {% else %}
+                    <a href="{{ url_for('pedidos.mis_pedidos') }}">Mis pedidos</a>
+                    {% endif %}
+                    <span>{{ current_user.nombre }} ({{ current_user.rol.nombre }})</span>
+                    <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+                </div>
                 {% else %}
-                    <!--
-                        Ícono de cuenta (personita): punto de entrada único al login.
-                        Desde auth.portal el sistema recién distingue si es personal
-                        interno (Gerente/Administrador/Empleado) o Cliente.
-                    -->
-                    <a class="icono-cuenta" href="{{ url_for('auth.portal') }}" title="Iniciar sesión">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
-                            <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.2-8 5v3h16v-3c0-2.8-3.6-5-8-5z"/>
-                        </svg>
-                    </a>
+                <a class="icono-cuenta" href="{{ url_for('auth.portal') }}" title="Iniciar sesión">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+                        <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.2-8 5v3h16v-3c0-2.8-3.6-5-8-5z" />
+                    </svg>
+                </a>
                 {% endif %}
             </div>
         </div>
-        <!-- Buscador en móvil: debajo de la barra principal -->
-        <form method="GET" action="{{ url_for('tienda.catalogo') }}" class="buscador-navbar d-flex d-md-none mx-auto mt-2 mb-1 px-3">
+        <form method="GET" action="{{ url_for('tienda.catalogo') }}"
+            class="buscador-navbar d-flex d-md-none mx-auto mt-2 mb-1 px-3">
             <div class="input-wrap">
-                <input type="text" name="q" class="buscador-input" placeholder="Buscar productos, marcas..." value="{{ request.args.get('q', '') }}">
+                <input type="text" name="q" class="buscador-input" placeholder="Buscar productos, marcas..."
+                    value="{{ request.args.get('q', '') }}">
                 <button type="button" class="btn-mic" title="Buscar por voz">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                        <line x1="12" y1="19" x2="12" y2="23" />
+                    </svg>
                 </button>
                 <button type="submit" class="btn-buscar">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="7" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
                 </button>
             </div>
         </form>
     </nav>
 
-    <!--
-        MEGA-MENÚ de categorías (barra amarilla, solo escritorio). Al pasar
-        el mouse sobre una categoría con subcategorías, se despliega un
-        panel inferior con la lista — igual que en la referencia del
-        cliente. En móvil se usa el menú lateral (offcanvas) de abajo.
-        Las secciones fijas y las categorías se generan dinámicamente.
-    -->
     <nav class="mega-nav d-none d-lg-block">
         <div class="container">
             <ul class="mega-lista">
@@ -232,94 +604,87 @@
                 <li class="mega-item"><a href="{{ url_for('tienda.catalogo', nuevo=1) }}">NOVEDADES</a></li>
                 <li class="mega-item"><a href="{{ url_for('tienda.catalogo', destacado=1) }}">DESTACADOS</a></li>
                 {% for categoria in categorias_menu %}
-                    {% set subcats_activas = categoria.subcategorias|selectattr("activo")|list %}
-                    <li class="mega-item">
-                        {% if subcats_activas %}
-                            <span>{{ categoria.nombre|upper }}</span>
-                            <div class="mega-panel">
-                                <div class="mega-panel-titulo">{{ categoria.nombre }}</div>
-                                <a href="{{ url_for('tienda.catalogo', categoria_id=categoria.id) }}">Ver todo</a>
-                                {% for sub in subcats_activas %}
-                                <a href="{{ url_for('tienda.catalogo', subcategoria_id=sub.id) }}">{{ sub.nombre }}</a>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            <a href="{{ url_for('tienda.catalogo', categoria_id=categoria.id) }}">{{ categoria.nombre|upper }}</a>
-                        {% endif %}
-                    </li>
+                {% set subcats_activas = categoria.subcategorias|selectattr("activo")|list %}
+                <li class="mega-item">
+                    {% if subcats_activas %}
+                    <span>{{ categoria.nombre|upper }}</span>
+                    <div class="mega-panel">
+                        <div class="mega-panel-titulo">{{ categoria.nombre }}</div>
+                        <a href="{{ url_for('tienda.catalogo', categoria_id=categoria.id) }}">Ver todo</a>
+                        {% for sub in subcats_activas %}
+                        <a href="{{ url_for('tienda.catalogo', subcategoria_id=sub.id) }}">{{ sub.nombre }}</a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <a href="{{ url_for('tienda.catalogo', categoria_id=categoria.id) }}">{{ categoria.nombre|upper
+                        }}</a>
+                    {% endif %}
+                </li>
                 {% endfor %}
                 <li class="mega-item"><a href="{{ url_for('tienda.catalogo', oferta=1) }}">OFERTAS</a></li>
             </ul>
         </div>
     </nav>
 
-    <!--
-        MENÚ LATERAL (offcanvas), inspirado en el menú de referencia del cliente.
-        Las categorías/subcategorías se cargan dinámicamente desde la base de
-        datos (Categoria/Subcategoria) vía el context processor
-        `categorias_menu`, así que no hay que tocar este HTML cuando Diana
-        agregue o quite categorías desde el panel.
-    -->
     <div class="offcanvas offcanvas-start menu-lateral" tabindex="-1" id="menuLateral">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" style="color: var(--nahara-amarillo);">Menú</h5>
+            <h5 class="offcanvas-title" style="color: #ffffff;">Menú</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
         </div>
         <div class="offcanvas-body d-flex flex-column">
-            <!-- DESTACADOS: productos marcados como es_destacado -->
-            <a href="{{ url_for('tienda.catalogo', destacado=1) }}" class="menu-lateral-link" style="color: var(--nahara-amarillo);">✦ Destacados</a>
-
+            <a href="{{ url_for('tienda.catalogo', destacado=1) }}" class="menu-lateral-link" style="color: #ffffff;">✦
+                Destacados</a>
             <a href="{{ url_for('tienda.catalogo') }}" class="menu-lateral-link">Home</a>
-
-            <!-- MÁS VENDIDOS: calculado en vivo con las ventas reales verificadas -->
             <a href="{{ url_for('tienda.catalogo', mas_vendido=1) }}" class="menu-lateral-link">Más Vendidos</a>
-
-            <!-- NOVEDADES: productos marcados como es_nuevo -->
             <a href="{{ url_for('tienda.catalogo', nuevo=1) }}" class="menu-lateral-link">Novedades</a>
 
             {% for categoria in categorias_menu %}
-                {% set subcats_activas = categoria.subcategorias|selectattr("activo")|list %}
-                {% if subcats_activas %}
-                <a class="menu-lateral-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#menu-cat-{{ categoria.id }}" role="button">
-                    {{ categoria.nombre }} <span>+</span>
-                </a>
-                <div class="collapse" id="menu-cat-{{ categoria.id }}">
-                    <a href="{{ url_for('tienda.catalogo', categoria_id=categoria.id) }}" class="menu-lateral-sublink">Ver todo</a>
-                    {% for sub in subcats_activas %}
-                    <a href="{{ url_for('tienda.catalogo', subcategoria_id=sub.id) }}" class="menu-lateral-sublink">{{ sub.nombre }}</a>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <a href="{{ url_for('tienda.catalogo', categoria_id=categoria.id) }}" class="menu-lateral-link">{{ categoria.nombre }}</a>
-                {% endif %}
+            {% set subcats_activas = categoria.subcategorias|selectattr("activo")|list %}
+            {% if subcats_activas %}
+            <a class="menu-lateral-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
+                href="#menu-cat-{{ categoria.id }}" role="button">
+                {{ categoria.nombre }} <span>+</span>
+            </a>
+            <div class="collapse" id="menu-cat-{{ categoria.id }}">
+                <a href="{{ url_for('tienda.catalogo', categoria_id=categoria.id) }}" class="menu-lateral-sublink">Ver
+                    todo</a>
+                {% for sub in subcats_activas %}
+                <a href="{{ url_for('tienda.catalogo', subcategoria_id=sub.id) }}" class="menu-lateral-sublink">{{
+                    sub.nombre }}</a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <a href="{{ url_for('tienda.catalogo', categoria_id=categoria.id) }}" class="menu-lateral-link">{{
+                categoria.nombre }}</a>
+            {% endif %}
             {% endfor %}
 
-            <!--
-                GIFT CARDS: aún no existe un tipo de producto "tarjeta de
-                regalo" en el modelo de datos (app/models_all.py). Cuando se
-                defina cómo modelarlo, reemplazar este href="#" por su ruta real.
-            -->
             <a href="#" class="menu-lateral-link">Gift Cards</a>
-
-            <!-- OFERTAS: productos marcados como en_oferta -->
             <a href="{{ url_for('tienda.catalogo', oferta=1) }}" class="menu-lateral-link">Ofertas</a>
 
             <div class="mt-auto pt-4">
-                <!-- Botón de acceso: mismo destino que el ícono de personita del navbar -->
                 <a href="{{ url_for('auth.portal') }}" class="btn btn-outline-light w-100 mb-4">Acceso</a>
 
                 <div class="d-flex gap-3 justify-content-center">
-                    <!-- Facebook del menú lateral: mismo link que la tarjeta del footer -->
                     <a href="#" target="_blank" rel="noopener" class="menu-social-icono mi-facebook" title="Facebook">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12z"/></svg>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+                            <path
+                                d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12z" />
+                        </svg>
                     </a>
-                    <!-- Instagram del menú lateral: mismo link que la tarjeta del footer -->
                     <a href="#" target="_blank" rel="noopener" class="menu-social-icono mi-instagram" title="Instagram">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1"/></svg>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                            stroke-width="2" aria-hidden="true">
+                            <rect x="3" y="3" width="18" height="18" rx="5" />
+                            <circle cx="12" cy="12" r="4" />
+                            <circle cx="17.3" cy="6.7" r="1" />
+                        </svg>
                     </a>
-                    <!-- TikTok del menú lateral: mismo link que la tarjeta del footer -->
                     <a href="#" target="_blank" rel="noopener" class="menu-social-icono mi-tiktok" title="TikTok">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M16.6 3c.4 2 1.9 3.6 3.9 3.9v3a7 7 0 0 1-3.9-1.2v6.7a5.7 5.7 0 1 1-5.7-5.7c.3 0 .6 0 .9.1v3.1a2.6 2.6 0 1 0 1.8 2.5V3h3z"/></svg>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+                            <path
+                                d="M16.6 3c.4 2 1.9 3.6 3.9 3.9v3a7 7 0 0 1-3.9-1.2v6.7a5.7 5.7 0 1 1-5.7-5.7c.3 0 .6 0 .9.1v3.1a2.6 2.6 0 1 0 1.8 2.5V3h3z" />
+                        </svg>
                     </a>
                 </div>
             </div>
@@ -334,25 +699,25 @@
         <div class="offcanvas-body d-flex flex-column">
             {% set lineas_mini, total_mini = resumen_carrito() %}
             {% if not lineas_mini %}
-                <p class="text-muted">Tu carrito está vacío.</p>
+            <p class="text-muted">Tu carrito está vacío.</p>
             {% else %}
-                {% for l in lineas_mini %}
-                <div class="d-flex justify-content-between border-bottom py-2">
-                    <div>
-                        <div class="small fw-bold">{{ l.producto.nombre }}</div>
-                        <div class="small text-muted">x{{ l.cantidad }} · {{ l.nivel_precio }}</div>
-                    </div>
-                    <div class="small">Bs. {{ "%.2f"|format(l.subtotal) }}</div>
+            {% for l in lineas_mini %}
+            <div class="d-flex justify-content-between border-bottom py-2">
+                <div>
+                    <div class="small fw-bold">{{ l.producto.nombre }}</div>
+                    <div class="small text-muted">x{{ l.cantidad }} · {{ l.nivel_precio }}</div>
                 </div>
-                {% endfor %}
-                <div class="mt-auto pt-3">
-                    <div class="d-flex justify-content-between fw-bold mb-2">
-                        <span>Total</span>
-                        <span>Bs. {{ "%.2f"|format(total_mini) }}</span>
-                    </div>
-                    <a href="{{ url_for('tienda.ver_carrito') }}" class="btn btn-outline-dark w-100 mb-2">Ver carrito</a>
-                    <a href="{{ url_for('tienda.checkout') }}" class="btn btn-nahara w-100">Ir a pagar</a>
+                <div class="small">Bs. {{ "%.2f"|format(l.subtotal) }}</div>
+            </div>
+            {% endfor %}
+            <div class="mt-auto pt-3">
+                <div class="d-flex justify-content-between fw-bold mb-2">
+                    <span>Total</span>
+                    <span>Bs. {{ "%.2f"|format(total_mini) }}</span>
                 </div>
+                <a href="{{ url_for('tienda.ver_carrito') }}" class="btn btn-outline-dark w-100 mb-2">Ver carrito</a>
+                <a href="{{ url_for('tienda.checkout') }}" class="btn btn-nahara w-100">Ir a pagar</a>
+            </div>
             {% endif %}
         </div>
     </div>
@@ -367,12 +732,6 @@
 
     <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
-    <!--
-        Búsqueda por voz (Web Speech API, nativa del navegador — sin
-        librerías externas). Requiere HTTPS en producción; en localhost
-        funciona sin problema. Si el navegador no la soporta, el botón
-        de micrófono simplemente no hace nada (no rompe el buscador).
-    -->
     <script>
         (function () {
             const ReconocimientoVoz = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -411,4 +770,5 @@
 
     {% block scripts_extra %}{% endblock %}
 </body>
+
 </html>

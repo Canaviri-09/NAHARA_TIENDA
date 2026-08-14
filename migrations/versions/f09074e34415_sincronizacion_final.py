@@ -1,9 +1,7 @@
 """Sincronizacion final
-
 Revision ID: f09074e34415
 Revises: 
 Create Date: 2026-08-13 17:01:51.925123
-
 """
 from alembic import op
 import sqlalchemy as sa
