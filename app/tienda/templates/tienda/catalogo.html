@@ -50,6 +50,16 @@
                         </select>
                     </div>
 
+                    <div class="mb-3">
+                        <label class="form-label small">Color</label>
+                        <select name="color_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">Todos</option>
+                            {% for col in colores %}
+                            <option value="{{ col.id }}" {% if color_id_actual == col.id %}selected{% endif %}>{{ col.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
                     <div class="mb-2">
                         <label class="form-label small d-block">Estado</label>
                         <div class="form-check">
@@ -80,7 +90,7 @@
             <h2 class="mb-0">{{ "Resultados para “" + busqueda + "”" if busqueda else "Catálogo" }}</h2>
             <form method="GET" class="d-flex align-items-center gap-2">
                 <input type="hidden" name="q" value="{{ busqueda }}">
-                {% for key in ['categoria_id', 'disponibilidad', 'nuevo', 'destacado', 'oferta', 'mas_vendido'] %}
+                {% for key in ['categoria_id', 'color_id', 'disponibilidad', 'nuevo', 'destacado', 'oferta', 'mas_vendido'] %}
                     {% if request.args.get(key) %}<input type="hidden" name="{{ key }}" value="{{ request.args.get(key) }}">{% endif %}
                 {% endfor %}
                 <label class="small mb-0">Ordenar por:</label>

@@ -16,7 +16,7 @@ from app.productos.utils_imagenes import extension_permitida
 from app.productos.utils_mas_vendidos import obtener_ids_mas_vendidos
 from app.extensions import db
 from app.models_all import (
-    Producto, Categoria, ConfiguracionPagoQR, ConfiguracionEmpresa, Pedido, ItemPedido,
+    Producto, Categoria, Color, ConfiguracionPagoQR, ConfiguracionEmpresa, Pedido, ItemPedido,
     DIAS_PRODUCTO_NUEVO, MetodoEnvio,
 )
 from app.utilidades import requiere_rol
@@ -44,6 +44,10 @@ def catalogo():
     subcategoria_id = request.args.get("subcategoria_id", type=int)
     if subcategoria_id:
         consulta = consulta.filter(Producto.subcategoria_id == subcategoria_id)
+
+    color_id = request.args.get("color_id", type=int)
+    if color_id:
+        consulta = consulta.filter(Producto.color_id == color_id)
 
     disponibilidad = request.args.get("disponibilidad")
     if disponibilidad == "en_existencia":
@@ -79,12 +83,13 @@ def catalogo():
 
     productos = consulta.all()
     categorias = Categoria.query.filter_by(activo=True).order_by(Categoria.nombre).all()
+    colores = Color.query.order_by(Color.nombre).all()
 
     # Las secciones "Destacados" / "Novedades" de la portada solo se
     # muestran en la visita limpia a la tienda (sin filtros activos), para
     # no confundirlas con resultados de búsqueda/filtro.
     hay_filtros_activos = any([
-        q, categoria_id, subcategoria_id, disponibilidad,
+        q, categoria_id, subcategoria_id, disponibilidad, color_id,
         request.args.get("nuevo"), request.args.get("destacado"),
         request.args.get("oferta"), request.args.get("mas_vendido"),
     ])
@@ -105,6 +110,7 @@ def catalogo():
         "tienda/catalogo.html",
         productos=productos,
         categorias=categorias,
+        colores=colores,
         calcular_precio_unitario=calcular_precio_unitario,
         ids_mas_vendidos=ids_mas_vendidos,
         hay_filtros_activos=hay_filtros_activos,
@@ -112,6 +118,7 @@ def catalogo():
         novedades_home=novedades_home,
         busqueda=q,
         categoria_id_actual=categoria_id,
+        color_id_actual=color_id,
         categorias_home=categorias,
     )
 
