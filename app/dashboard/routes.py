@@ -63,7 +63,7 @@ def index():
     # Solo personal interno puede ver el dashboard.
     contadores = None
     if current_user.rol.es_personal_interno:
-        pedidos_pendientes = Pedido.query.filter_by(estado="Pendiente de verificación").count()
+        pedidos_pendientes = Pedido.query.filter_by(estado="Pendiente").count()
         b2b_pendientes = Usuario.query.filter_by(estado_aprobacion_b2b="Pendiente").count()
         stock_bajo = (
             Producto.query.filter(Producto.activo.is_(True), Producto.stock <= UMBRAL_STOCK_BAJO).count()
@@ -203,7 +203,7 @@ def api_stats():
         por_canal.append(item_canal)
 
     # Contadores de pedidos pendientes y atendidos
-    pedidos_pendientes_count = Pedido.query.filter_by(estado="Pendiente de verificación").count()
+    pedidos_pendientes_count = Pedido.query.filter_by(estado="Pendiente").count()
     pedidos_atendidos_count = (
         Pedido.query.filter(Pedido.estado.in_(VENTAS_VALIDAS))
         .filter(Pedido.fecha_creacion >= desde)

@@ -250,7 +250,7 @@ def checkout():
             subtotal=total,
             total=total_con_envio,
             comprobante_pago=ruta_comprobante,
-            estado="Pendiente de verificación",
+            estado="Pendiente",
         )
         db.session.add(pedido)
         db.session.flush()

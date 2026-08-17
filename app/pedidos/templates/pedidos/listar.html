@@ -26,10 +26,21 @@
             <td>{{ p.tipo_entrega }}</td>
             <td>Bs. {{ "%.2f"|format(p.total) }}</td>
             <td>
-                {% if p.estado == "Pendiente de verificación" %}<span class="badge bg-warning text-dark">{{ p.estado }}</span>
-                {% elif p.estado == "Rechazado" %}<span class="badge bg-danger">{{ p.estado }}</span>
-                {% elif p.estado == "Entregado" %}<span class="badge bg-success">{{ p.estado }}</span>
-                {% else %}<span class="badge bg-secondary">{{ p.estado }}</span>{% endif %}
+                {% if p.estado == "Pendiente" or p.estado == "Pendiente de verificación" %}
+                    <span class="badge bg-warning text-dark">Pendiente</span>
+                {% elif p.estado == "Pagado" %}
+                    <span class="badge bg-info text-dark">Pagado</span>
+                {% elif p.estado == "Despachado" %}
+                    <span class="badge bg-primary">Despachado</span>
+                {% elif p.estado == "En Tránsito" %}
+                    <span class="badge bg-warning text-dark">En Tránsito</span>
+                {% elif p.estado == "Entregado" %}
+                    <span class="badge bg-success">Entregado</span>
+                {% elif p.estado == "Rechazado" %}
+                    <span class="badge bg-danger">Rechazado</span>
+                {% else %}
+                    <span class="badge bg-secondary">{{ p.estado }}</span>
+                {% endif %}
             </td>
             <td>{{ p.fecha_creacion.strftime("%Y-%m-%d %H:%M") }}</td>
             <td class="text-end">

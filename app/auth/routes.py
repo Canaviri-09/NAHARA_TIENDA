@@ -15,7 +15,10 @@ from app.models_all import Usuario, Rol
 def portal():
     """Portal de acceso: elegir entre ingreso de personal interno o de clientes."""
     if current_user.is_authenticated:
-        return redirect(url_for("dashboard.index"))
+        if current_user.rol.es_personal_interno:
+            return redirect(url_for("dashboard.index"))
+        else:
+            return redirect(url_for("tienda.catalogo"))
     return render_template("auth/portal.html")
 
 
@@ -240,7 +243,10 @@ def verificar_otp():
         login_user(usuario)
         session.pop("otp_correo_pendiente", None)
         flash(f"Bienvenido/a, {usuario.nombre}.", "success")
-        return redirect(url_for("dashboard.index"))
+        if usuario.rol.es_personal_interno:
+            return redirect(url_for("dashboard.index"))
+        else:
+            return redirect(url_for("tienda.catalogo"))
 
     return render_template("auth/verificar_otp.html", formulario=formulario)
 
