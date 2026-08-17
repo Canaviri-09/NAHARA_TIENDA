@@ -37,6 +37,7 @@ class Usuario(db.Model, UserMixin):
     correo = db.Column(db.String(150), unique=True, nullable=False, index=True)
     password = db.Column(db.String(255), nullable=True)  # NULL para clientes externos (OTP)
     telefono = db.Column(db.String(30), nullable=True)
+    google_id = db.Column(db.String(150), unique=True, nullable=True)
 
     rol_id = db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=False)
     activo = db.Column(db.Boolean, default=True, nullable=False)
@@ -133,7 +134,6 @@ class Producto(db.Model):
     # TODO funciona internamente en USD; el Bs. se calcula al vuelo con el
     # tipo de cambio del día (ConfiguracionEmpresa.tipo_cambio_usd). El
     # Gerente puede escribir en USD o en Bs. desde el formulario — el otro
-    # valor se recalcula solo (ver JS del formulario), pero lo que se
     # guarda en la base de datos siempre es el monto en USD.
     precio_compra_usd = db.Column(db.Numeric(10, 2), nullable=False, default=0)  # SOLO Gerente/Administrador
     tipo_cambio_al_comprar = db.Column(db.Numeric(10, 4), nullable=True)  # tipo de cambio vigente cuando se fijó el costo
@@ -268,7 +268,7 @@ class ConfiguracionPagoQR(db.Model):
 # Pedidos y checkout (Fase 4)
 # ---------------------------------------------------------------------------
 # NIVELES_PRECIO ya está definido junto a la clase Producto (más arriba)
-ESTADOS_PEDIDO = ["Pendiente de verificación", "Pagado", "En preparación", "Entregado", "Rechazado"]
+ESTADOS_PEDIDO = ["Pendiente", "Pagado", "Despachado", "En Tránsito", "Entregado", "Rechazado"]
 ENTREGAS = ["Envio", "Retiro en tienda"]
 
 
@@ -311,7 +311,7 @@ class MetodoEnvio(db.Model):
     __tablename__ = "metodos_envio"
 
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)  # ej. "Courier Local", "Envío a Terminal"
+    nombre = db.Column(db.String(100), nullable=False)  # "Envío a Terminal"
     costo = db.Column(db.Numeric(10, 2), nullable=False, default=0)
     activo = db.Column(db.Boolean, default=True, nullable=False)
 
@@ -342,7 +342,12 @@ class Pedido(db.Model):
 
     comprobante_pago = db.Column(db.String(255), nullable=True)
     metodo_pago = db.Column(db.String(30), default="QR/Transferencia", nullable=False)
-    estado = db.Column(db.String(30), default="Pendiente de verificación", nullable=False)
+    estado = db.Column(db.String(30), default="Pendiente", nullable=False)
+
+    # Datos de tracking y envío interdepartamental
+    empresa_transporte = db.Column(db.String(100), nullable=True)
+    numero_guia = db.Column(db.String(100), nullable=True)
+    numero_guia_foto_url = db.Column(db.String(255), nullable=True)
 
     numero_nota = db.Column(db.Integer, unique=True, nullable=True)
     verificado_por_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), nullable=True)

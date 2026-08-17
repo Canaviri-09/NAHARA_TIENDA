@@ -53,6 +53,10 @@ def create_app(config_class=Config):
     from app.reportes import reportes_bp
     app.register_blueprint(reportes_bp)
 
+    from app.api import api_bp
+    app.register_blueprint(api_bp)
+    csrf.exempt(api_bp)
+
     from app.tienda.utils_carrito import cantidad_total_items, calcular_resumen_carrito
 
     @app.context_processor

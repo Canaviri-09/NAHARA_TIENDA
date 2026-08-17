@@ -40,7 +40,7 @@ def detalle(pedido_id):
 @requiere_rol(*ROLES_GESTION)
 def verificar_pago(pedido_id):
     pedido = Pedido.query.get_or_404(pedido_id)
-    if pedido.estado != "Pendiente de verificación":
+    if pedido.estado != "Pendiente":
         flash("Este pedido ya fue procesado.", "warning")
         return redirect(url_for("pedidos.detalle", pedido_id=pedido.id))
 
@@ -68,18 +68,59 @@ def rechazar(pedido_id):
     return redirect(url_for("pedidos.detalle", pedido_id=pedido.id))
 
 
-@pedidos_bp.route("/<int:pedido_id>/en-preparacion", methods=["POST"])
+import os
+from werkzeug.utils import secure_filename
+from flask import current_app
+
+@pedidos_bp.route("/<int:pedido_id>/despachar", methods=["POST"])
 @login_required
 @requiere_rol(*ROLES_GESTION)
-def en_preparacion(pedido_id):
+def despachar(pedido_id):
     pedido = Pedido.query.get_or_404(pedido_id)
     if pedido.estado != "Pagado":
-        flash("El pedido debe estar Pagado antes de pasar a preparación.", "warning")
+        flash("El pedido debe estar Pagado antes de ser despachado.", "warning")
+        return redirect(url_for("pedidos.detalle", pedido_id=pedido.id))
+
+    empresa = request.form.get("empresa_transporte")
+    guia = request.form.get("numero_guia")
+    foto = request.files.get("numero_guia_foto")
+
+    if not empresa or not guia:
+        flash("La empresa de transporte y el número de guía son obligatorios.", "danger")
+        return redirect(url_for("pedidos.detalle", pedido_id=pedido.id))
+
+    foto_ruta_relativa = None
+    if foto and foto.filename != "":
+        nombre_archivo = secure_filename(f"guia_{pedido.id}_{foto.filename}")
+        carpeta_destino = os.path.join(current_app.config["UPLOAD_FOLDER"], "guias")
+        os.makedirs(carpeta_destino, exist_ok=True)
+        foto.save(os.path.join(carpeta_destino, nombre_archivo))
+        foto_ruta_relativa = f"uploads/guias/{nombre_archivo}"
+
+    pedido.estado = "Despachado"
+    pedido.empresa_transporte = empresa
+    pedido.numero_guia = guia
+    if foto_ruta_relativa:
+        pedido.numero_guia_foto_url = foto_ruta_relativa
+    
+    db.session.commit()
+    notificar_cambio_estado(pedido)
+    flash("Pedido marcado como Despachado.", "success")
+    return redirect(url_for("pedidos.detalle", pedido_id=pedido.id))
+
+
+@pedidos_bp.route("/<int:pedido_id>/en-transito", methods=["POST"])
+@login_required
+@requiere_rol(*ROLES_GESTION)
+def en_transito(pedido_id):
+    pedido = Pedido.query.get_or_404(pedido_id)
+    if pedido.estado != "Despachado":
+        flash("El pedido debe estar Despachado antes de pasar a En Tránsito.", "warning")
     else:
-        pedido.estado = "En preparación"
+        pedido.estado = "En Tránsito"
         db.session.commit()
         notificar_cambio_estado(pedido)
-        flash("Pedido marcado En preparación.", "success")
+        flash("Pedido marcado como En Tránsito.", "success")
     return redirect(url_for("pedidos.detalle", pedido_id=pedido.id))
 
 
