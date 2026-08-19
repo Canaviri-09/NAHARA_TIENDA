@@ -154,3 +154,49 @@
     /* Gris */
     color: #ffffff !important;
 }
+
+
+/* ============================================================
+   AJUSTES DEL MENÚ DESPLEGABLE MÓVIL
+   ============================================================ */
+
+/* Texto del menú, títulos y enlaces en color negro */
+.offcanvas-body,
+.offcanvas-header,
+.offcanvas-title,
+.offcanvas a,
+.offcanvas .nav-link,
+.offcanvas .accordion-button {
+    color: #1a1a1a !important;
+}
+
+/* Cruz de cerrar en negro */
+.offcanvas-header .btn-close {
+    filter: brightness(0) !important;
+}
+
+/* Botón de Acceso en fondo negro con texto blanco */
+.offcanvas .btn-outline-light,
+.offcanvas a[href*="login"],
+.offcanvas .btn-acceso {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border: 1px solid #1a1a1a !important;
+}
+
+/* Íconos de redes sociales: Fondo negro con ícono invertido a blanco */
+.offcanvas div:last-child a,
+.offcanvas .social-icons a,
+.offcanvas .social-links a {
+    color: #ffffff !important;
+    filter: invert(1) brightness(2) !important;
+    /* Invierte el color interno del ícono SVG a blanco */
+}
+
+/* Fondo circular negro para los íconos si son contenedores independientes */
+.offcanvas .social-icons a i,
+.offcanvas .social-links a i {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+    border-radius: 50%;
+}
