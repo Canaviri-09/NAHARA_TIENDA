@@ -7,6 +7,8 @@
     <title>{% block title %}NAHARA{% endblock %}</title>
     <!-- Bootstrap alojado localmente -->
     <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- CSS Personalizado del Proyecto -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -27,20 +29,17 @@
         /* =========================================================
            1. BARRA DE NAVEGACIÓN SUPERIOR (DONDE DICE NAHARA)
            ========================================================= */
-        /* COLOR: Fondo del panel de arriba cambiado a ROSADO */
         .navbar-nahara {
             background-color: var(--nahara-rosado);
             border-bottom: 1px solid rgba(0, 0, 0, 0.08);
         }
 
-        /* COLOR: Texto del logo NAHARA cambiado a NEGRO */
         .navbar-nahara .navbar-brand {
             color: var(--nahara-negro);
             font-weight: 700;
             letter-spacing: 1px;
         }
 
-        /* COLOR: Enlaces del panel de arriba (Panel, Pedidos, etc.) */
         .navbar-nahara .nav-link {
             color: var(--nahara-negro);
         }
@@ -49,7 +48,6 @@
             color: #ffffff;
         }
 
-        /* COLOR: Botones en la barra superior */
         .btn-nahara {
             background-color: var(--nahara-negro);
             color: #fff;
@@ -62,7 +60,6 @@
             color: #fff;
         }
 
-        /* COLOR: Ícono de usuario/cuenta */
         .icono-cuenta {
             color: var(--nahara-negro);
             display: inline-flex;
@@ -74,23 +71,19 @@
             color: #ffffff;
         }
 
-
         /* =========================================================
            2. SECCIÓN SÍGUENOS / FOOTER (ABAJO)
            ========================================================= */
-        /* COLOR: Fondo del Footer cambiado de rosado a PLOMO CLARO */
         .footer-nahara {
             background-color: var(--nahara-plomo-claro);
             color: var(--nahara-negro);
         }
 
-        /* COLOR: Título "SÍGUENOS" */
         .footer-titulo {
             color: var(--nahara-negro);
             letter-spacing: 2px;
         }
 
-        /* COLOR: Las 4 Tarjetas de Redes Sociales (Estado normal) */
         .social-card {
             display: flex;
             align-items: center;
@@ -99,14 +92,12 @@
             padding: 18px 24px;
             border-radius: 14px;
             background-color: #d1d5db;
-            /* COLOR: Plomo medio/claro para los cuadros de abajo */
             color: var(--nahara-negro);
             text-decoration: none;
             border: 1px solid #bc1c8;
             transition: background 0.35s ease, transform 0.2s ease, color 0.35s ease;
         }
 
-        /* Textos de los cuadros de redes sociales */
         .social-card .social-label {
             font-size: 0.75rem;
             text-transform: uppercase;
@@ -129,7 +120,6 @@
             color: var(--nahara-negro);
         }
 
-        /* Efecto al pasar el cursor (hover) por los cuadros */
         .social-card:hover {
             transform: translateY(-2px);
             color: #ffffff;
@@ -142,7 +132,6 @@
             color: #ffffff;
         }
 
-        /* COLOR HOVER: Efectos de gradiente al acercar el ratón a cada red social */
         .social-tiktok:hover {
             background: linear-gradient(90deg, #25F4EE 0%, #6f3ac0 55%, #FE2C55 100%);
         }
@@ -160,11 +149,9 @@
             color: #ffffff;
         }
 
-
         /* =========================================================
            3. MENÚ DE NAVEGACIÓN Y COMPONENTES
            ========================================================= */
-        /* COLOR: Barra donde dice NOVEDADES, MÁS VENDIDOS, ETC. */
         .mega-nav {
             background-color: var(--nahara-plomo-claro);
         }
@@ -236,7 +223,6 @@
             text-transform: uppercase;
         }
 
-        /* COLOR: Pie final y derechos de autor */
         .footer-linea-final {
             border-top: 1px solid rgba(0, 0, 0, 0.1);
             color: #555555;
@@ -320,110 +306,6 @@
             background-color: #1877F2;
         }
 
-        /* --- Badges de tarjetas --- */
-        .badges-producto {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            align-items: flex-start;
-        }
-
-        .badge-producto {
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 3px 9px;
-            border-radius: 20px;
-            color: #fff;
-            text-transform: uppercase;
-        }
-
-        .badge-nuevo {
-            background-color: var(--nahara-plomo-claro);
-            color: #111;
-        }
-
-        .badge-destacado {
-            background-color: var(--nahara-rosado);
-        }
-
-        .badge-oferta {
-            background-color: #e63946;
-        }
-
-        .badge-mas-vendido {
-            background-color: #2a9d8f;
-        }
-
-        .badge-inactivo {
-            background-color: #888;
-        }
-
-        .tarjeta-producto {
-            transition: transform 0.2s ease;
-        }
-
-        .tarjeta-producto:hover {
-            transform: translateY(-3px);
-        }
-
-        /* --- Categorías en portada --- */
-        .categoria-tile {
-            position: relative;
-            border-radius: 10px;
-            overflow: hidden;
-            height: 180px;
-            background-color: #ddd;
-        }
-
-        .categoria-tile img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.35s ease;
-        }
-
-        .categoria-tile:hover img {
-            transform: scale(1.06);
-        }
-
-        .categoria-tile-sinfoto {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--nahara-rosado);
-            color: #fff;
-            font-weight: 700;
-            text-align: center;
-            padding: 10px;
-        }
-
-        .categoria-tile-overlay {
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 100%;
-            padding: 10px 14px;
-            background: linear-gradient(0deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 100%);
-            color: #fff;
-        }
-
-        .categoria-tile-nombre {
-            font-weight: 800;
-            text-transform: uppercase;
-            font-size: 1rem;
-        }
-
-        .categoria-tile-explorar {
-            font-size: 0.72rem;
-            color: var(--nahara-plomo-claro);
-        }
-
-        /* --- Opciones de cuenta --- */
         .opciones-cuenta {
             display: flex;
             align-items: center;
@@ -449,7 +331,6 @@
             color: #ffffff;
         }
 
-        /* --- Buscador estilo píldora --- */
         .buscador-navbar {
             max-width: 480px;
             width: 100%;
@@ -514,7 +395,7 @@
             background-color: var(--nahara-negro) !important;
             border-right: 1px solid rgba(0, 0, 0, 0.15);
         }
-        
+
         #admin-sidebar .nav-link {
             transition: all 0.25s ease;
             font-size: 0.9rem;
@@ -543,6 +424,7 @@
                 flex-wrap: nowrap;
                 min-height: calc(100vh - 58px);
             }
+
             #admin-sidebar {
                 flex: 0 0 240px;
                 width: 240px;
@@ -553,6 +435,7 @@
                 overflow-x: hidden;
                 overflow-y: auto;
             }
+
             .admin-main {
                 flex-grow: 1;
                 padding: 24px;
@@ -565,9 +448,11 @@
             .admin-layout-wrapper {
                 display: block;
             }
+
             .admin-main {
                 padding: 16px;
             }
+
             #admin-sidebar {
                 width: 100%;
                 min-height: auto;
@@ -580,12 +465,16 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-nahara">
         <div class="container">
-            {% set in_admin = in_admin or (current_user.is_authenticated and current_user.rol.es_personal_interno and request.blueprint in ['dashboard', 'productos', 'categorias', 'pedidos', 'reportes', 'usuarios'] and request.endpoint != 'pedidos.mis_pedidos') or (request.endpoint in ['tienda.configurar_pago_qr', 'tienda.metodos_envio']) %}
+            {% set in_admin = in_admin or (current_user.is_authenticated and current_user.rol.es_personal_interno and
+            request.blueprint in ['dashboard', 'productos', 'categorias', 'pedidos', 'reportes', 'usuarios'] and
+            request.endpoint != 'pedidos.mis_pedidos') or (request.endpoint in ['tienda.configurar_pago_qr',
+            'tienda.metodos_envio']) %}
             {% if in_admin %}
             <button class="btn-hamburguesa d-md-none me-2" type="button" data-bs-toggle="collapse"
-                data-bs-target="#admin-sidebar" aria-controls="admin-sidebar" aria-expanded="false" aria-label="Toggle admin sidebar">
+                data-bs-target="#admin-sidebar" aria-controls="admin-sidebar" aria-expanded="false"
+                aria-label="Toggle admin sidebar">
                 <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
-                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
                 </svg>
             </button>
             {% else %}
@@ -757,7 +646,8 @@
                             <circle cx="17.3" cy="6.7" r="1" />
                         </svg>
                     </a>
-                    <a href="#" target="_blank" rel="noopener" class="menu-social-icono mi-tiktok" title="TikTok">
+                    <a href="https://www.tiktok.com/@nahara_shop_?_r=1&_t=ZS-98Z2aI4nFYa" target="_blank" rel="noopener"
+                        class="menu-social-icono mi-tiktok" title="TikTok">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
                             <path
                                 d="M16.6 3c.4 2 1.9 3.6 3.9 3.9v3a7 7 0 0 1-3.9-1.2v6.7a5.7 5.7 0 1 1-5.7-5.7c.3 0 .6 0 .9.1v3.1a2.6 2.6 0 1 0 1.8 2.5V3h3z" />
@@ -803,97 +693,129 @@
 
     <div class="{% if in_admin %}admin-layout-wrapper{% else %}container py-4{% endif %}">
         {% if in_admin %}
-            <!-- Sidebar Fijo -->
-            <nav id="admin-sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse py-3 text-white border-end">
-                <div class="position-sticky">
-                    <ul class="nav flex-column gap-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.endpoint == 'dashboard.index' %}bg-primary fw-bold{% else %}opacity-75{% endif %}" href="{{ url_for('dashboard.index') }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-                                    <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H12.5a.5.5 0 0 1-.5-.5m-7-3a.5.5 0 0 1 .707 0l.914.914a.5.5 0 1 1-.707.708l-.914-.915a.5.5 0 0 1 0-.707M11.224 5.776a.5.5 0 0 1 0 .708l-.914.915a.5.5 0 1 1-.707-.708l.914-.914a.5.5 0 0 1 .707 0"/>
-                                    <path d="M10.125 5.192 3 10.125A6.002 6.002 0 0 0 8.125 14h.75A6.002 6.002 0 0 0 14 8.875v-.75a6.002 6.002 0 0 0-3.875-5.933ZM10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
-                                </svg>
-                                <span>Dashboard</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.blueprint == 'productos' %}bg-primary fw-bold{% else %}opacity-75{% endif %}" href="{{ url_for('productos.listar') }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-                                    <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.566 5.014 8 5.987l6.186-2.474zM15.825 5l-6.8 2.72v7.172l6.8-2.72zm-7.8 9.892V7.72L1.225 5v7.172z"/>
-                                </svg>
-                                <span>Productos</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.blueprint == 'categorias' %}bg-primary fw-bold{% else %}opacity-75{% endif %}" href="{{ url_for('categorias.listar') }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-                                    <path d="M3 2v4.586l7 7L14.586 9l-7-7zM2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 7.586z"/>
-                                    <path d="M5.5 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/>
-                                </svg>
-                                <span>Categorías</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.blueprint == 'pedidos' and request.endpoint != 'pedidos.mis_pedidos' %}bg-primary fw-bold{% else %}opacity-75{% endif %}" href="{{ url_for('pedidos.listar') }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-                                    <path d="M11.354 6.354a.5.5 0 0 0-.708-.708L8 8.293 6.854 7.146a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0z"/>
-                                    <path d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zm3.915 10L3.102 4h10.796l-1.313 7zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
-                                </svg>
-                                <span>Pedidos</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.blueprint == 'reportes' %}bg-primary fw-bold{% else %}opacity-75{% endif %}" href="{{ url_for('reportes.index') }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M0 0h1v15h15v1H0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5"/>
-                                </svg>
-                                <span>Reportes Ventas</span>
-                            </a>
-                        </li>
+        <!-- Sidebar Fijo -->
+        <nav id="admin-sidebar"
+            class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse py-3 text-white border-end">
+            <div class="position-sticky">
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.endpoint == 'dashboard.index' %}bg-primary fw-bold{% else %}opacity-75{% endif %}"
+                            href="{{ url_for('dashboard.index') }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                <path
+                                    d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H12.5a.5.5 0 0 1-.5-.5m-7-3a.5.5 0 0 1 .707 0l.914.914a.5.5 0 1 1-.707.708l-.914-.915a.5.5 0 0 1 0-.707M11.224 5.776a.5.5 0 0 1 0 .708l-.914.915a.5.5 0 1 1-.707-.708l.914-.914a.5.5 0 0 1 .707 0" />
+                                <path
+                                    d="M10.125 5.192 3 10.125A6.002 6.002 0 0 0 8.125 14h.75A6.002 6.002 0 0 0 14 8.875v-.75a6.002 6.002 0 0 0-3.875-5.933ZM10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
+                            </svg>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.blueprint == 'productos' %}bg-primary fw-bold{% else %}opacity-75{% endif %}"
+                            href="{{ url_for('productos.listar') }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                <path
+                                    d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.566 5.014 8 5.987l6.186-2.474zM15.825 5l-6.8 2.72v7.172l6.8-2.72zm-7.8 9.892V7.72L1.225 5v7.172z" />
+                            </svg>
+                            <span>Productos</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.blueprint == 'categorias' %}bg-primary fw-bold{% else %}opacity-75{% endif %}"
+                            href="{{ url_for('categorias.listar') }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                <path
+                                    d="M3 2v4.586l7 7L14.586 9l-7-7zM2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 7.586z" />
+                                <path d="M5.5 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2" />
+                            </svg>
+                            <span>Categorías</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.blueprint == 'pedidos' and request.endpoint != 'pedidos.mis_pedidos' %}bg-primary fw-bold{% else %}opacity-75{% endif %}"
+                            href="{{ url_for('pedidos.listar') }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                <path
+                                    d="M11.354 6.354a.5.5 0 0 0-.708-.708L8 8.293 6.854 7.146a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0z" />
+                                <path
+                                    d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zm3.915 10L3.102 4h10.796l-1.313 7zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                            </svg>
+                            <span>Pedidos</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.blueprint == 'reportes' %}bg-primary fw-bold{% else %}opacity-75{% endif %}"
+                            href="{{ url_for('reportes.index') }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M0 0h1v15h15v1H0zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5" />
+                            </svg>
+                            <span>Reportes Ventas</span>
+                        </a>
+                    </li>
 
-                        {% if current_user.tiene_rol("Gerente", "Administrador") %}
-                        <li class="nav-item">
-                            <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.endpoint == 'usuarios.listar_personal' %}bg-primary fw-bold{% else %}opacity-75{% endif %}" href="{{ url_for('usuarios.listar_personal') }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-                                    <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724C2.3 10.634 3.268 10 5 10zM6 8a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M0 8a3 3 0 1 1 6 0 3 3 0 0 1-6 0"/>
-                                </svg>
-                                <span>Personal Interno</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.endpoint == 'usuarios.aprobaciones_b2b' %}bg-primary fw-bold{% else %}opacity-75{% endif %}" href="{{ url_for('usuarios.aprobaciones_b2b') }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-                                    <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m1.679-4.493-1.335 2.226a.75.75 0 0 1-1.157.073l-.832-.856a.5.5 0 0 1 .722-.692l.53.546 1.052-1.753a.5.5 0 0 1 .82.556M11 7.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V8.9l-3.6 3.6a.5.5 0 0 1-.7 0L7.5 9.3l-2.65 2.65a.5.5 0 0 1-.7-.7l3-3a.5.5 0 0 1 .7 0l3.15 3.15 3-3V7.5a.5.5 0 0 1-.5-.5"/>
-                                </svg>
-                                <span>Aprobaciones B2B</span>
-                            </a>
-                        </li>
+                    {% if current_user.tiene_rol("Gerente", "Administrador") %}
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.endpoint == 'usuarios.listar_personal' %}bg-primary fw-bold{% else %}opacity-75{% endif %}"
+                            href="{{ url_for('usuarios.listar_personal') }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                <path
+                                    d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724C2.3 10.634 3.268 10 5 10zM6 8a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M0 8a3 3 0 1 1 6 0 3 3 0 0 1-6 0" />
+                            </svg>
+                            <span>Personal Interno</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.endpoint == 'usuarios.aprobaciones_b2b' %}bg-primary fw-bold{% else %}opacity-75{% endif %}"
+                            href="{{ url_for('usuarios.aprobaciones_b2b') }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                <path
+                                    d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m1.679-4.493-1.335 2.226a.75.75 0 0 1-1.157.073l-.832-.856a.5.5 0 0 1 .722-.692l.53.546 1.052-1.753a.5.5 0 0 1 .82.556M11 7.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V8.9l-3.6 3.6a.5.5 0 0 1-.7 0L7.5 9.3l-2.65 2.65a.5.5 0 0 1-.7-.7l3-3a.5.5 0 0 1 .7 0l3.15 3.15 3-3V7.5a.5.5 0 0 1-.5-.5" />
+                            </svg>
+                            <span>Aprobaciones B2B</span>
+                        </a>
+                    </li>
 
-                        <!-- Configuración -->
-                        <li class="nav-item mt-3 mb-1">
-                            <div class="text-white-50 px-3 small text-uppercase fw-bold letter-spacing-1">Configuración</div>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.endpoint == 'tienda.configurar_pago_qr' %}bg-primary fw-bold{% else %}opacity-75{% endif %}" href="{{ url_for('tienda.configurar_pago_qr') }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-                                    <path d="M0 .5A.5.5 0 0 1 .5 0h3a.5.5 0 0 1 0 1H1v2.5a.5.5 0 0 1-1 0zm12 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0V1h-2.5a.5.5 0 0 1-.5-.5M.5 12a.5.5 0 0 1 .5.5V15h2.5a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5m15 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1 0-1H15v-2.5a.5.5 0 0 1 .5-.5M4 4h1v1H4z"/>
-                                    <path d="M7 2H2v5h5zm-1 1v3H3V3zm5-1h-5v5h5zm-1 1v3h-3V3zM2 9h5v5H2zm1 1v3h3v-3zm5-5h2v2H8zm3 1v1h-1v-1zm-1-7h1v1h-1zm1 5h1.5a.5.5 0 0 1 .5.5v1.5a.5.5 0 0 1-.5.5H11a.5.5 0 0 1-.5-.5v-1.5a.5.5 0 0 1 .5-.5"/>
-                                </svg>
-                                <span>Pago QR / T. Cambio</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.endpoint == 'tienda.metodos_envio' %}bg-primary fw-bold{% else %}opacity-75{% endif %}" href="{{ url_for('tienda.metodos_envio') }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-                                    <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5zm1.294 7.456A2 2 0 0 1 4.7 11H11a2 2 0 0 1 2.91 1.151l.09-.046a.5.5 0 0 0 .22-.441V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 12.23 6H12v4.5a.5.5 0 0 1-1 0V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .12.312"/>
-                                </svg>
-                                <span>Métodos Envío</span>
-                            </a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </nav>
+                    <!-- Configuración -->
+                    <li class="nav-item mt-3 mb-1">
+                        <div class="text-white-50 px-3 small text-uppercase fw-bold letter-spacing-1">Configuración
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.endpoint == 'tienda.configurar_pago_qr' %}bg-primary fw-bold{% else %}opacity-75{% endif %}"
+                            href="{{ url_for('tienda.configurar_pago_qr') }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                <path
+                                    d="M0 .5A.5.5 0 0 1 .5 0h3a.5.5 0 0 1 0 1H1v2.5a.5.5 0 0 1-1 0zm12 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0V1h-2.5a.5.5 0 0 1-.5-.5M.5 12a.5.5 0 0 1 .5.5V15h2.5a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5m15 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1 0-1H15v-2.5a.5.5 0 0 1 .5-.5M4 4h1v1H4z" />
+                                <path
+                                    d="M7 2H2v5h5zm-1 1v3H3V3zm5-1h-5v5h5zm-1 1v3h-3V3zM2 9h5v5H2zm1 1v3h3v-3zm5-5h2v2H8zm3 1v1h-1v-1zm-1-7h1v1h-1zm1 5h1.5a.5.5 0 0 1 .5.5v1.5a.5.5 0 0 1-.5.5H11a.5.5 0 0 1-.5-.5v-1.5a.5.5 0 0 1 .5-.5" />
+                            </svg>
+                            <span>Pago QR / T. Cambio</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex align-items-center gap-2 py-2 px-3 rounded {% if request.endpoint == 'tienda.metodos_envio' %}bg-primary fw-bold{% else %}opacity-75{% endif %}"
+                            href="{{ url_for('tienda.metodos_envio') }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                <path
+                                    d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5zm1.294 7.456A2 2 0 0 1 4.7 11H11a2 2 0 0 1 2.91 1.151l.09-.046a.5.5 0 0 0 .22-.441V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 12.23 6H12v4.5a.5.5 0 0 1-1 0V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .12.312" />
+                            </svg>
+                            <span>Métodos Envío</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
         {% endif %}
 
         <div id="admin-main-content" class="{% if in_admin %}admin-main{% endif %}">
